@@ -1247,3 +1247,10 @@ image_storage:
   presign_expiry_hours: 24
   # 当上游返回的是图片 url 时，下载该图片再转存的字节上限（默认 32MB）
   max_download_bytes: 33554432
+
+# 按请求归档上游 JSON/SSE 数据，固定按 UTC+08:00 分日。
+# 默认启用；配置目录后才会实际写入文件。
+request_archive:
+  enabled: true
+  directory: "" # 示例：/app/data/request-archives
+  provider_code: "" # 当前部署使用的自定义编码
