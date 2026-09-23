@@ -13,20 +13,90 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 var archiveLocation = time.FixedZone("UTC+08", 8*60*60)
 
-var archiveSequences = struct {
-	sync.Mutex
-	values map[string]uint64
-}{values: make(map[string]uint64)}
+// FailureReasonSequenceConflict is the bounded metric label used when an
+// allocated staging directory already exists.
+const FailureReasonSequenceConflict = "sequence_conflict"
+
+type sequenceAllocator struct {
+	mu       sync.Mutex
+	date     string
+	sequence uint64
+}
+
+var archiveAllocators = struct {
+	sync.RWMutex
+	values map[string]*sequenceAllocator
+}{values: make(map[string]*sequenceAllocator)}
+
+var sequenceConflictFailures atomic.Uint64
 
 type Config struct {
 	Root         string
 	ProviderCode string
 }
+
+// Initialize validates an enabled archive root and initializes its in-memory
+// sequence from the current day's completed and staging directories. Call it
+// during process startup; request handling never performs directory scans.
+func Initialize(cfg Config, now time.Time) error {
+	root := strings.TrimSpace(cfg.Root)
+	if root == "" {
+		return errors.New("request archive directory is required")
+	}
+	root = filepath.Clean(root)
+	localTime := now.In(archiveLocation)
+	dateDir := localTime.Format("2006-01-02")
+	dateID := localTime.Format("20060102")
+	finalParent := filepath.Join(root, dateDir)
+	stagingParent := filepath.Join(root, ".staging", dateDir)
+	if err := os.MkdirAll(finalParent, 0700); err != nil {
+		return fmt.Errorf("create request archive directory: %w", err)
+	}
+	if err := os.MkdirAll(stagingParent, 0700); err != nil {
+		return fmt.Errorf("create request archive staging directory: %w", err)
+	}
+	if err := validateArchiveFilesystem(stagingParent, finalParent); err != nil {
+		return err
+	}
+	sequence, err := highestArchiveSequence("req_"+dateID+"_", finalParent, stagingParent)
+	if err != nil {
+		return err
+	}
+
+	archiveAllocators.Lock()
+	archiveAllocators.values[root] = &sequenceAllocator{date: dateID, sequence: sequence}
+	archiveAllocators.Unlock()
+	return nil
+}
+
+func validateArchiveFilesystem(stagingParent, finalParent string) error {
+	stageDir, err := os.MkdirTemp(stagingParent, ".archive-startup-probe-")
+	if err != nil {
+		return fmt.Errorf("request archive directory is not writable: %w", err)
+	}
+	defer os.RemoveAll(stageDir)
+	finalDir := filepath.Join(finalParent, filepath.Base(stageDir))
+	defer os.RemoveAll(finalDir)
+	if err := os.Rename(stageDir, finalDir); err != nil {
+		return fmt.Errorf("request archive directory does not support atomic publish: %w", err)
+	}
+	return nil
+}
+
+// FailureCount exposes recorded archive failures for operational metrics.
+func FailureCount(reason string) uint64 {
+	if reason == FailureReasonSequenceConflict {
+		return sequenceConflictFailures.Load()
+	}
+	return 0
+}
+
 type Metadata struct {
 	RequestID    string  `json:"requestId"`
 	SessionID    *string `json:"sessionId"`
@@ -152,8 +222,6 @@ func (s *Scope) Finish() {
 	}
 	if !s.published {
 		s.cleanupStaging()
-	} else {
-		cleanupEmptyStagingParents(s.dir, s.cfg.Root)
 	}
 }
 
@@ -176,60 +244,64 @@ func (s *Scope) report(err error) {
 // reserveArchiveDirectory 为归档独立分配全天唯一编号，并先在隐藏临时区中占位。
 // 正式日期目录只在三个文件全部写入完成后出现。
 func reserveArchiveDirectory(root string, started time.Time) (string, string, string, error) {
+	root = filepath.Clean(strings.TrimSpace(root))
 	localTime := started.In(archiveLocation)
 	dateDir := localTime.Format("2006-01-02")
 	dateID := localTime.Format("20060102")
 	prefix := "req_" + dateID + "_"
 	finalParent := filepath.Join(root, dateDir)
 	stagingParent := filepath.Join(root, ".staging", dateDir)
-	if err := os.MkdirAll(finalParent, 0700); err != nil {
-		return "", "", "", err
+
+	archiveAllocators.RLock()
+	allocator := archiveAllocators.values[root]
+	archiveAllocators.RUnlock()
+	if allocator == nil {
+		return "", "", "", errors.New("request archive is not initialized")
 	}
-	if err := os.MkdirAll(stagingParent, 0700); err != nil {
+	id, err := allocator.nextID(dateID, prefix, finalParent, stagingParent)
+	if err != nil {
 		return "", "", "", err
 	}
 
-	archiveSequences.Lock()
-	defer archiveSequences.Unlock()
-	key := filepath.Clean(root) + "\x00" + dateID
-	sequence, ok := archiveSequences.values[key]
-	if !ok {
-		sequence = highestArchiveSequence(prefix, finalParent, stagingParent)
+	stageDir := filepath.Join(stagingParent, id)
+	finalDir := filepath.Join(finalParent, id)
+	if err := os.Mkdir(stageDir, 0700); err != nil {
+		if errors.Is(err, os.ErrExist) {
+			sequenceConflictFailures.Add(1)
+			return "", "", "", fmt.Errorf("request archive sequence conflict for %s: %w", id, err)
+		}
+		return "", "", "", err
 	}
-	for {
-		sequence++
-		id := fmt.Sprintf("%s%06d", prefix, sequence)
-		stageDir := filepath.Join(stagingParent, id)
-		finalDir := filepath.Join(finalParent, id)
-		if _, err := os.Stat(finalDir); err == nil {
-			continue
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return "", "", "", err
-		}
-		if err := os.Mkdir(stageDir, 0700); err != nil {
-			if errors.Is(err, os.ErrExist) {
-				continue
-			}
-			return "", "", "", err
-		}
-		if _, err := os.Stat(finalDir); err == nil {
-			_ = os.Remove(stageDir)
-			continue
-		} else if !errors.Is(err, os.ErrNotExist) {
-			_ = os.Remove(stageDir)
-			return "", "", "", err
-		}
-		archiveSequences.values[key] = sequence
-		return id, stageDir, finalDir, nil
-	}
+	return id, stageDir, finalDir, nil
 }
 
-func highestArchiveSequence(prefix string, parents ...string) uint64 {
+func (a *sequenceAllocator) nextID(dateID, prefix, finalParent, stagingParent string) (string, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	if dateID < a.date {
+		return "", fmt.Errorf("request archive date moved backwards from %s to %s", a.date, dateID)
+	}
+	if dateID > a.date {
+		if err := os.MkdirAll(finalParent, 0700); err != nil {
+			return "", err
+		}
+		if err := os.MkdirAll(stagingParent, 0700); err != nil {
+			return "", err
+		}
+		a.date = dateID
+		a.sequence = 0
+	}
+	a.sequence++
+	return fmt.Sprintf("%s%06d", prefix, a.sequence), nil
+}
+
+func highestArchiveSequence(prefix string, parents ...string) (uint64, error) {
 	var highest uint64
 	for _, parent := range parents {
 		entries, err := os.ReadDir(parent)
 		if err != nil {
-			continue
+			return 0, fmt.Errorf("scan request archive directory %q: %w", parent, err)
 		}
 		for _, entry := range entries {
 			if !entry.IsDir() || !strings.HasPrefix(entry.Name(), prefix) {
@@ -241,7 +313,7 @@ func highestArchiveSequence(prefix string, parents ...string) uint64 {
 			}
 		}
 	}
-	return highest
+	return highest, nil
 }
 
 func clearArchiveAttempt(dir string) error {
@@ -284,13 +356,6 @@ func (s *Scope) cleanupStaging() {
 	if err := os.RemoveAll(s.dir); err != nil {
 		s.report(err)
 	}
-	cleanupEmptyStagingParents(s.dir, s.cfg.Root)
-}
-
-func cleanupEmptyStagingParents(stageDir, root string) {
-	dateStagingDir := filepath.Dir(stageDir)
-	_ = os.Remove(dateStagingDir)
-	_ = os.Remove(filepath.Join(root, ".staging"))
 }
 func writeAtomic(dir, name string, data []byte) error {
 	f, err := os.CreateTemp(dir, ".archive-*")

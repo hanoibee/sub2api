@@ -13,9 +13,13 @@ import (
 
 func TestArchivePreservesPrivateDataWhileRedactionIsDisabled(t *testing.T) {
 	root := t.TempDir()
+	started := time.Date(2026, 9, 22, 1, 0, 0, 0, time.UTC)
+	if err := Initialize(Config{Root: root}, started); err != nil {
+		t.Fatal(err)
+	}
 	request := `{"model":"safe-model","max_tokens":100,"user":"customer-42","password":"open-sesame","messages":[{"role":"user","content":"联系 alice@example.com 或 13800138000，Authorization: Bearer abcdefghijklmnop"}],"image_url":"data:image/png;base64,PRIVATE"}`
 	response := `{"id":"msg-safe","content":[{"type":"thinking","thinking":"alice@example.com"},{"type":"text","text":"发送到 alice@example.com"}],"signature":"private-signature","usage":{"input_tokens":10,"output_tokens":2}}`
-	_, scope := WithScope(context.Background(), Config{Root: root}, "session-customer-42", time.Date(2026, 9, 22, 1, 0, 0, 0, time.UTC))
+	_, scope := WithScope(context.Background(), Config{Root: root}, "session-customer-42", started)
 	wrapped := scope.Wrap(io.NopCloser(strings.NewReader(response)), []byte(request), Info{Protocol: "ANTHROPIC", Model: "safe-model", Status: 200}, false, int64(len(response)))
 	transport, err := io.ReadAll(wrapped)
 	if err != nil || string(transport) != response {
@@ -88,7 +92,11 @@ func TestArchiveLeavesSubtreePastDepthLimitUntouched(t *testing.T) {
 
 func TestStreamPreservesEachEventAndDoneWhileRedactionIsDisabled(t *testing.T) {
 	root := t.TempDir()
-	_, scope := WithScope(context.Background(), Config{Root: root}, "", time.Date(2026, 9, 22, 1, 0, 0, 0, time.UTC))
+	started := time.Date(2026, 9, 22, 1, 0, 0, 0, time.UTC)
+	if err := Initialize(Config{Root: root}, started); err != nil {
+		t.Fatal(err)
+	}
+	_, scope := WithScope(context.Background(), Config{Root: root}, "", started)
 	stream := "data: {\"type\":\"content_block_delta\",\"delta\":{\"text\":\"alice@example.com\",\"signature\":\"secret-signature\"}}\n\ndata: [DONE]\n\n"
 	wrapped := scope.Wrap(io.NopCloser(strings.NewReader(stream)), []byte(`{"stream":true}`), Info{Protocol: "ANTHROPIC", Stream: true, Status: 200}, true, -1)
 	transport, err := io.ReadAll(wrapped)

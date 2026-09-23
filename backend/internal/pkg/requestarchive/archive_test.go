@@ -18,6 +18,9 @@ var archiveTime = time.Date(2026, 9, 21, 16, 1, 2, 123000000, time.UTC)
 
 func newTestScope(t *testing.T, root string) *Scope {
 	t.Helper()
+	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
 	_, s := WithScope(context.Background(), Config{Root: root, ProviderCode: "custom"}, "session-1", archiveTime)
 	t.Cleanup(s.Finish)
 	return s
@@ -58,8 +61,8 @@ func consume(t *testing.T, r io.ReadCloser, want string) {
 func TestSyncPreservesRawJSONAndMetadata(t *testing.T) {
 	root := t.TempDir()
 	s := newTestScope(t, root)
-	if entries, _ := os.ReadDir(root); len(entries) != 0 {
-		t.Fatal("archive created before response")
+	if entries, _ := os.ReadDir(filepath.Join(root, "2026-09-22")); len(entries) != 0 {
+		t.Fatal("request archive created before response")
 	}
 	request := `{ "model":"real-model", "extra":9007199254740993 }`
 	raw := "{ \"choices\": [ {\"text\":\"" + strings.Repeat("x", 70000) + "\"} ], \"usage\":{\"prompt_tokens\":120,\"completion_tokens\":85},\"extra\":9007199254740993 }"
@@ -156,6 +159,9 @@ func TestRetryReplacesOnlyItsOwnAttempt(t *testing.T) {
 }
 func TestConcurrentCollisionNeverOverwrites(t *testing.T) {
 	root := t.TempDir()
+	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
 	var wg sync.WaitGroup
 	for i := 0; i < 20; i++ {
 		wg.Add(1)
@@ -187,6 +193,9 @@ func TestConcurrentCollisionNeverOverwrites(t *testing.T) {
 }
 func TestUniqueConcurrentRequests(t *testing.T) {
 	root := t.TempDir()
+	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
 	var wg sync.WaitGroup
 	for i := 0; i < 30; i++ {
 		wg.Add(1)
@@ -205,6 +214,74 @@ func TestUniqueConcurrentRequests(t *testing.T) {
 		t.Fatalf("archives=%d err=%v", len(entries), err)
 	}
 }
+
+func TestInitializeRestoresSequenceAndDayRolloverResetsIt(t *testing.T) {
+	root := t.TempDir()
+	dayOneFinal := filepath.Join(root, "2026-09-22")
+	dayOneStaging := filepath.Join(root, ".staging", "2026-09-22")
+	if err := os.MkdirAll(filepath.Join(dayOneFinal, "req_20260922_000007"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(dayOneStaging, "req_20260922_000009"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
+
+	_, first := WithScope(context.Background(), Config{Root: root}, "", archiveTime)
+	response := first.Wrap(io.NopCloser(strings.NewReader(`{}`)), []byte(`{}`), Info{Status: 200}, false, 2)
+	consume(t, response, `{}`)
+	first.Finish()
+	if _, err := os.Stat(filepath.Join(dayOneFinal, "req_20260922_000010")); err != nil {
+		t.Fatalf("sequence was not restored from disk: %v", err)
+	}
+
+	dayTwo := archiveTime.Add(24 * time.Hour)
+	_, second := WithScope(context.Background(), Config{Root: root}, "", dayTwo)
+	response = second.Wrap(io.NopCloser(strings.NewReader(`{}`)), []byte(`{}`), Info{Status: 200}, false, 2)
+	consume(t, response, `{}`)
+	second.Finish()
+	if _, err := os.Stat(filepath.Join(root, "2026-09-23", "req_20260923_000001")); err != nil {
+		t.Fatalf("new day did not reset sequence: %v", err)
+	}
+}
+
+func TestSequenceConflictSkipsArchiveWithoutRetry(t *testing.T) {
+	root := t.TempDir()
+	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
+	conflict := filepath.Join(root, ".staging", "2026-09-22", "req_20260922_000001")
+	if err := os.Mkdir(conflict, 0700); err != nil {
+		t.Fatal(err)
+	}
+	before := FailureCount(FailureReasonSequenceConflict)
+	_, scope := WithScope(context.Background(), Config{Root: root}, "", archiveTime)
+	original := io.NopCloser(strings.NewReader(`{"ok":true}`))
+	wrapped := scope.Wrap(original, []byte(`{}`), Info{Status: 200}, false, -1)
+	consume(t, wrapped, `{"ok":true}`)
+	scope.Finish()
+
+	if got := FailureCount(FailureReasonSequenceConflict); got != before+1 {
+		t.Fatalf("sequence conflict metric=%d, want %d", got, before+1)
+	}
+	if _, err := os.Stat(filepath.Join(root, "2026-09-22", "req_20260922_000002")); !errors.Is(err, os.ErrNotExist) {
+		t.Fatal("conflicting allocation retried with the next sequence")
+	}
+}
+
+func TestFinishKeepsSharedStagingParents(t *testing.T) {
+	root := t.TempDir()
+	scope := newTestScope(t, root)
+	response := scope.Wrap(io.NopCloser(strings.NewReader(`{}`)), []byte(`{}`), Info{Status: 200}, false, 2)
+	consume(t, response, `{}`)
+	scope.Finish()
+	if info, err := os.Stat(filepath.Join(root, ".staging", "2026-09-22")); err != nil || !info.IsDir() {
+		t.Fatalf("shared staging parent was removed: %v", err)
+	}
+}
+
 func TestIncompleteStreamAndFailOpen(t *testing.T) {
 	t.Run("partial", func(t *testing.T) {
 		root := t.TempDir()
@@ -218,14 +295,14 @@ func TestIncompleteStreamAndFailOpen(t *testing.T) {
 			t.Fatalf("incomplete archive was published: %v", entries)
 		}
 	})
-	t.Run("disk error", func(t *testing.T) {
+	t.Run("invalid archive root fails initialization", func(t *testing.T) {
 		root := filepath.Join(t.TempDir(), "not-a-directory")
 		if err := os.WriteFile(root, []byte("sentinel"), 0600); err != nil {
 			t.Fatal(err)
 		}
-		s := newTestScope(t, root)
-		r := s.Wrap(io.NopCloser(strings.NewReader(`{"ok":true}`)), []byte(`{}`), Info{Status: 200}, false, -1)
-		consume(t, r, `{"ok":true}`)
+		if err := Initialize(Config{Root: root}, archiveTime); err == nil {
+			t.Fatal("invalid archive root was accepted")
+		}
 	})
 }
 func TestScopeFinishClosesInterruptedCapture(t *testing.T) {
@@ -246,6 +323,9 @@ func TestScopeFinishClosesInterruptedCapture(t *testing.T) {
 }
 func TestMissingUsageAndSessionRemainNull(t *testing.T) {
 	root := t.TempDir()
+	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
 	_, s := WithScope(context.Background(), Config{Root: root}, "", archiveTime)
 	defer s.Finish()
 	r := s.Wrap(io.NopCloser(strings.NewReader(`{"error":"denied"}`)), []byte(`{}`), Info{Status: 403}, false, -1)

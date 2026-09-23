@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/requestarchive"
@@ -28,6 +29,9 @@ func TestRequestArchiveMiddlewareScope(t *testing.T) {
 			cfg.RequestArchive.Enabled = tt.enabled
 			if tt.root {
 				cfg.RequestArchive.Directory = t.TempDir()
+				if err := requestarchive.Initialize(requestarchive.Config{Root: cfg.RequestArchive.Directory}, time.Now()); err != nil {
+					t.Fatal(err)
+				}
 			}
 			r := gin.New()
 			r.Use(ClientRequestID(), RequestArchive(cfg))

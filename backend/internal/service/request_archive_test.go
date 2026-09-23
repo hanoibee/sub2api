@@ -26,6 +26,26 @@ func (u archiveTestUpstream) Do(r *http.Request, _ string, _ int64, _ int) (*htt
 func (u archiveTestUpstream) DoWithTLS(r *http.Request, p string, id int64, n int, _ *tlsfingerprint.Profile) (*http.Response, error) {
 	return u.Do(r, p, id, n)
 }
+
+type archiveStaticUpstream struct {
+	response string
+	request  []byte
+}
+
+func (u *archiveStaticUpstream) Do(r *http.Request, _ string, _ int64, _ int) (*http.Response, error) {
+	u.request, _ = io.ReadAll(r.Body)
+	return &http.Response{
+		StatusCode:    http.StatusOK,
+		Header:        http.Header{"Content-Type": {"application/json"}},
+		Body:          io.NopCloser(strings.NewReader(u.response)),
+		ContentLength: int64(len(u.response)),
+	}, nil
+}
+
+func (u *archiveStaticUpstream) DoWithTLS(r *http.Request, p string, id int64, n int, _ *tlsfingerprint.Profile) (*http.Response, error) {
+	return u.Do(r, p, id, n)
+}
+
 func TestRequestArchiveUpstreamIntegration(t *testing.T) {
 	for _, stream := range []bool{false, true} {
 		t.Run(map[bool]string{false: "sync", true: "stream"}[stream], func(t *testing.T) {
@@ -53,6 +73,9 @@ func TestRequestArchiveUpstreamIntegration(t *testing.T) {
 			defer server.Close()
 			ctx := context.Background()
 			root := t.TempDir()
+			if err := requestarchive.Initialize(requestarchive.Config{Root: root}, time.Date(2026, 9, 21, 16, 0, 0, 0, time.UTC)); err != nil {
+				t.Fatal(err)
+			}
 			ctx, scope := requestarchive.WithScope(ctx, requestarchive.Config{Root: root, ProviderCode: "deployment-a"}, "client-session", time.Date(2026, 9, 21, 16, 0, 0, 0, time.UTC))
 			req, err := http.NewRequestWithContext(ctx, http.MethodPost, server.URL+"/v1/responses", bytes.NewBufferString(request))
 			if err != nil {
@@ -93,6 +116,56 @@ func TestRequestArchiveUpstreamIntegration(t *testing.T) {
 		})
 	}
 }
+
+func TestGrokNativeResponsesJSONIsArchived(t *testing.T) {
+	root := t.TempDir()
+	if err := requestarchive.Initialize(requestarchive.Config{Root: root}, time.Date(2026, 9, 21, 16, 0, 0, 0, time.UTC)); err != nil {
+		t.Fatal(err)
+	}
+	ctx, scope := requestarchive.WithScope(context.Background(), requestarchive.Config{Root: root}, "", time.Date(2026, 9, 21, 16, 0, 0, 0, time.UTC))
+	upstream := &archiveStaticUpstream{response: `{"output":[],"usage":{"input_tokens":7,"output_tokens":2}}`}
+	service := &GatewayService{httpUpstream: upstream}
+	account := &Account{
+		ID:       1,
+		Platform: PlatformGrok,
+		Type:     AccountTypeAPIKey,
+		Credentials: map[string]any{
+			"api_key": "test-key",
+		},
+	}
+	request := []byte(`{"model":"grok-4","input":"search"}`)
+
+	response, err := service.DoGrokNativeResponsesJSON(ctx, account, request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(response) != upstream.response || string(upstream.request) != string(request) {
+		t.Fatal("Grok native request or response changed")
+	}
+	scope.Finish()
+
+	dir := filepath.Join(root, "2026-09-22", "req_20260922_000001")
+	archivedRequest, err := os.ReadFile(filepath.Join(dir, "biz_request.json"))
+	if err != nil || string(archivedRequest) != string(request) {
+		t.Fatalf("request archive: %s (%v)", archivedRequest, err)
+	}
+	archivedResponse, err := os.ReadFile(filepath.Join(dir, "biz_response.json"))
+	if err != nil || string(archivedResponse) != upstream.response {
+		t.Fatalf("response archive: %s (%v)", archivedResponse, err)
+	}
+	metaRaw, err := os.ReadFile(filepath.Join(dir, "metadata.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var meta requestarchive.Metadata
+	if err := json.Unmarshal(metaRaw, &meta); err != nil {
+		t.Fatal(err)
+	}
+	if meta.Protocol != "OPENAI_RESPONSES" || meta.Platform == nil || *meta.Platform != "grok" || meta.ModelName == nil || *meta.ModelName != "grok-4" {
+		t.Fatalf("metadata: %+v", meta)
+	}
+}
+
 func TestRequestArchiveUpstreamScopeAndEndpointFiltering(t *testing.T) {
 	for _, tt := range []struct {
 		name, path, ct, body string
@@ -108,6 +181,9 @@ func TestRequestArchiveUpstreamScopeAndEndpointFiltering(t *testing.T) {
 			root := t.TempDir()
 			ctx := context.Background()
 			if tt.scope {
+				if err := requestarchive.Initialize(requestarchive.Config{Root: root}, time.Now()); err != nil {
+					t.Fatal(err)
+				}
 				var scope *requestarchive.Scope
 				ctx, scope = requestarchive.WithScope(ctx, requestarchive.Config{Root: root}, "", time.Now())
 				defer scope.Finish()
@@ -119,7 +195,7 @@ func TestRequestArchiveUpstreamScopeAndEndpointFiltering(t *testing.T) {
 			if original != resp.Body {
 				t.Fatal("out-of-scope response wrapped")
 			}
-			entries, _ := os.ReadDir(root)
+			entries, _ := os.ReadDir(filepath.Join(root, time.Now().In(time.FixedZone("UTC+08", 8*60*60)).Format("2006-01-02")))
 			if len(entries) != 0 {
 				t.Fatal("out-of-scope archive created")
 			}

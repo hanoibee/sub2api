@@ -19,6 +19,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/handler"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/requestarchive"
 	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/setup"
 	"github.com/Wei-Shaw/sub2api/internal/web"
@@ -138,6 +139,12 @@ func runMainServer() {
 	}
 	if err := logger.Init(logger.OptionsFromConfig(cfg.Log)); err != nil {
 		log.Fatalf("Failed to initialize logger: %v", err)
+	}
+	if cfg.RequestArchive.Enabled {
+		archiveConfig := requestarchive.Config{Root: cfg.RequestArchive.Directory, ProviderCode: cfg.RequestArchive.ProviderCode}
+		if err := requestarchive.Initialize(archiveConfig, time.Now()); err != nil {
+			log.Fatalf("Failed to initialize request archive: %v", err)
+		}
 	}
 	if cfg.RunMode == config.RunModeSimple {
 		log.Println("⚠️  WARNING: Running in SIMPLE mode - billing and quota checks are DISABLED")
