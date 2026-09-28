@@ -1,0 +1,17 @@
+[Unit]
+Description=Sub2API request archive packager
+After=local-fs.target
+
+[Service]
+Type=simple
+User=sub2api
+Group=sub2api
+EnvironmentFile=/opt/sub2api/.env
+ExecStart=/usr/bin/python3 /opt/sub2api/tools/request_archive_packager/package_request_archives.py
+Restart=on-failure
+RestartSec=10s
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
