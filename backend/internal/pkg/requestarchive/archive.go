@@ -39,6 +39,19 @@ var sequenceConflictFailures atomic.Uint64
 type Config struct {
 	Root         string
 	ProviderCode string
+	// PackagedRoot is the root containing provider/date/batch_manifest.json.
+	// It is primarily exposed for tests; production archives use /maasData/archive.
+	PackagedRoot string
+}
+
+const defaultPackagedArchiveRoot = "/maasData/archive"
+
+type batchManifest struct {
+	Date         string `json:"date"`
+	ProviderCode string `json:"provider_code"`
+	Batches      []struct {
+		LastRequest string `json:"last_request"`
+	} `json:"batches"`
 }
 
 // Initialize validates an enabled archive root and initializes its in-memory
@@ -68,11 +81,64 @@ func Initialize(cfg Config, now time.Time) error {
 	if err != nil {
 		return err
 	}
+	packagedSequence, err := highestPackagedSequence(cfg, dateDir, dateID)
+	if err != nil {
+		return err
+	}
+	if packagedSequence > sequence {
+		sequence = packagedSequence
+	}
 
 	archiveAllocators.Lock()
 	archiveAllocators.values[root] = &sequenceAllocator{date: dateID, sequence: sequence}
 	archiveAllocators.Unlock()
 	return nil
+}
+
+func highestPackagedSequence(cfg Config, dateDir, dateID string) (uint64, error) {
+	providerCode := strings.TrimSpace(cfg.ProviderCode)
+	if providerCode == "" {
+		return 0, nil
+	}
+	if providerCode == "." || providerCode == ".." || filepath.Base(providerCode) != providerCode {
+		return 0, fmt.Errorf("invalid request archive provider code %q", providerCode)
+	}
+	packagedRoot := strings.TrimSpace(cfg.PackagedRoot)
+	if packagedRoot == "" {
+		packagedRoot = defaultPackagedArchiveRoot
+	}
+	manifestPath := filepath.Join(packagedRoot, providerCode, dateDir, "batch_manifest.json")
+	file, err := os.Open(manifestPath)
+	if errors.Is(err, os.ErrNotExist) {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, fmt.Errorf("open request archive batch manifest: %w", err)
+	}
+	defer file.Close()
+
+	var manifest batchManifest
+	if err := json.NewDecoder(file).Decode(&manifest); err != nil {
+		return 0, fmt.Errorf("decode request archive batch manifest %q: %w", manifestPath, err)
+	}
+	if manifest.Date != dateDir || manifest.ProviderCode != providerCode {
+		return 0, fmt.Errorf("request archive batch manifest identity mismatch: %s", manifestPath)
+	}
+	prefix := "req_" + dateID + "_"
+	var highest uint64
+	for _, batch := range manifest.Batches {
+		if !strings.HasPrefix(batch.LastRequest, prefix) {
+			return 0, fmt.Errorf("invalid last_request %q in %s", batch.LastRequest, manifestPath)
+		}
+		sequence, err := strconv.ParseUint(strings.TrimPrefix(batch.LastRequest, prefix), 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("invalid last_request %q in %s: %w", batch.LastRequest, manifestPath, err)
+		}
+		if sequence > highest {
+			highest = sequence
+		}
+	}
+	return highest, nil
 }
 
 func validateArchiveFilesystem(stagingParent, finalParent string) error {

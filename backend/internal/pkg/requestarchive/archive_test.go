@@ -247,6 +247,38 @@ func TestInitializeRestoresSequenceAndDayRolloverResetsIt(t *testing.T) {
 	}
 }
 
+func TestInitializeRestoresSequenceFromPackagedManifestAfterSourcesDeleted(t *testing.T) {
+	root := t.TempDir()
+	packagedRoot := t.TempDir()
+	manifestDir := filepath.Join(packagedRoot, "provider-a", "2026-09-22")
+	if err := os.MkdirAll(manifestDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	manifest := `{
+  "version": 3,
+  "date": "2026-09-22",
+  "provider_code": "provider-a",
+  "batches": [
+    {"last_request": "req_20260922_000007"},
+    {"last_request": "req_20260922_000012"}
+  ]
+}`
+	if err := os.WriteFile(filepath.Join(manifestDir, "batch_manifest.json"), []byte(manifest), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := Initialize(Config{Root: root, ProviderCode: "provider-a", PackagedRoot: packagedRoot}, archiveTime); err != nil {
+		t.Fatal(err)
+	}
+
+	_, scope := WithScope(context.Background(), Config{Root: root, ProviderCode: "provider-a"}, "", archiveTime)
+	response := scope.Wrap(io.NopCloser(strings.NewReader(`{}`)), []byte(`{}`), Info{Status: 200}, false, 2)
+	consume(t, response, `{}`)
+	scope.Finish()
+	if _, err := os.Stat(filepath.Join(root, "2026-09-22", "req_20260922_000013")); err != nil {
+		t.Fatalf("sequence was not restored from packaged manifest: %v", err)
+	}
+}
+
 func TestSequenceConflictSkipsArchiveWithoutRetry(t *testing.T) {
 	root := t.TempDir()
 	if err := Initialize(Config{Root: root}, archiveTime); err != nil {
