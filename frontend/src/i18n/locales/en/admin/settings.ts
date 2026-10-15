@@ -444,7 +444,12 @@ export default {
         maxVersion: 'Maximum Version',
         maxVersionPlaceholder: 'e.g. 2.5.0',
         maxVersionHint:
-          'Reject Claude Code clients above this version (semver format). Leave empty to allow any version.'
+          'Reject Claude Code clients above this version (semver format). Leave empty to allow any version.',
+        thinkingSignaturePolicy: 'Invalid thinking.signature policy',
+        thinkingSignaturePolicyHint:
+          'Global default when Anthropic-strict models receive missing/invalid thinking.signature. Groups may override. strip=drop invalid blocks and forward (Claude Code multi-turn); reject=return 400 (signature acceptance tests).',
+        thinkingSignaturePolicyStrip: 'Strip',
+        thinkingSignaturePolicyReject: 'Reject',
       },
       scheduling: {
         title: 'Gateway Scheduling Settings',

@@ -518,6 +518,10 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 			return nil, err
 		}
 	}
+	thinkingSignaturePolicy, err := ParseThinkingInvalidSignaturePolicyInput(input.ThinkingInvalidSignaturePolicy)
+	if err != nil {
+		return nil, infraerrors.BadRequest("INVALID_THINKING_SIGNATURE_POLICY", err.Error())
+	}
 
 	// MCPXMLInject：默认为 true，仅当显式传入 false 时关闭
 	mcpXMLInject := true
@@ -608,6 +612,7 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 		AudioTTSPricePerMillionChars:    audioTTSPricePerMillionChars,
 		AudioSTTPricePerHour:            audioSTTPricePerHour,
 		ClaudeCodeOnly:                  input.ClaudeCodeOnly,
+		ThinkingInvalidSignaturePolicy:  thinkingSignaturePolicy,
 		FallbackGroupID:                 input.FallbackGroupID,
 		FallbackGroupIDOnInvalidRequest: fallbackOnInvalidRequest,
 		ModelRouting:                    input.ModelRouting,
@@ -949,6 +954,13 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 	// Claude Code 客户端限制
 	if input.ClaudeCodeOnly != nil {
 		group.ClaudeCodeOnly = *input.ClaudeCodeOnly
+	}
+	if input.ThinkingInvalidSignaturePolicy != nil {
+		p, err := ParseThinkingInvalidSignaturePolicyInput(*input.ThinkingInvalidSignaturePolicy)
+		if err != nil {
+			return nil, infraerrors.BadRequest("INVALID_THINKING_SIGNATURE_POLICY", err.Error())
+		}
+		group.ThinkingInvalidSignaturePolicy = p
 	}
 	if input.FallbackGroupID != nil {
 		// 校验降级分组

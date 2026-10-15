@@ -996,6 +996,20 @@ func (h *GatewayHandler) Messages(c *gin.Context) {
 			}
 
 			if err != nil {
+				// Thinking signature reject: Forward already wrote Anthropic-style 400.
+				// Treat as expected client policy denial — do not log gateway.forward_failed Error.
+				if errors.Is(err, service.ErrThinkingInvalidSignature) {
+					service.MarkOpsClientBusinessLimited(c, service.OpsClientBusinessLimitedReasonLocalPolicyDenied)
+					if !gatewayForwardErrorAlreadyCommunicated(c, writerSizeBeforeForward, err) {
+						h.errorResponse(c, http.StatusBadRequest, "invalid_request_error", err.Error())
+					}
+					reqLog.Warn("gateway.thinking_invalid_signature_rejected",
+						zap.Int64("account_id", account.ID),
+						zap.Error(err),
+					)
+					return
+				}
+
 				// Beta policy block: return 400 immediately, no failover
 				var betaBlockedErr *service.BetaBlockedError
 				if errors.As(err, &betaBlockedErr) {

@@ -182,6 +182,9 @@ type SystemSettings struct {
 	FallbackModelGemini      string `json:"fallback_model_gemini"`
 	FallbackModelAntigravity string `json:"fallback_model_antigravity"`
 
+	// ThinkingInvalidSignaturePolicy: strip|reject (default strip). Groups may override.
+	ThinkingInvalidSignaturePolicy string `json:"thinking_invalid_signature_policy"`
+
 	// Identity patch configuration (Claude -> Gemini)
 	EnableIdentityPatch bool   `json:"enable_identity_patch"`
 	IdentityPatchPrompt string `json:"identity_patch_prompt"`

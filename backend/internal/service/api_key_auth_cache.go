@@ -87,9 +87,11 @@ type APIKeyAuthGroupSnapshot struct {
 	AudioSTTPricePerHour            *float64                      `json:"audio_stt_price_per_hour,omitempty"`
 	LongContextPricingEnabled       bool                          `json:"long_context_pricing_enabled"`
 	ModelPricing                    []ChannelModelPricing         `json:"model_pricing,omitempty"`
-	ClaudeCodeOnly                  bool                          `json:"claude_code_only"`
-	FallbackGroupID                 *int64                        `json:"fallback_group_id,omitempty"`
-	FallbackGroupIDOnInvalidRequest *int64                        `json:"fallback_group_id_on_invalid_request,omitempty"`
+	ClaudeCodeOnly                 bool   `json:"claude_code_only"`
+	// ThinkingInvalidSignaturePolicy: ""=follow global, strip, reject.
+	ThinkingInvalidSignaturePolicy  string `json:"thinking_invalid_signature_policy,omitempty"`
+	FallbackGroupID                 *int64 `json:"fallback_group_id,omitempty"`
+	FallbackGroupIDOnInvalidRequest *int64 `json:"fallback_group_id_on_invalid_request,omitempty"`
 
 	// Model routing is used by gateway account selection, so it must be part of auth cache snapshot.
 	// Only anthropic groups use these fields; others may leave them empty.

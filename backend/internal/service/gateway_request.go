@@ -675,6 +675,16 @@ func FilterThinkingBlocks(body []byte, mappedModel string) []byte {
 	return filterThinkingBlocksInternal(body, isClaude55SignedThinkingModel(mappedModel))
 }
 
+// WouldFilterThinkingBlocks reports whether FilterThinkingBlocks would modify body.
+// Used by the reject policy to return 400 instead of stripping invalid signatures.
+func WouldFilterThinkingBlocks(body []byte, mappedModel string) bool {
+	if !ShouldPreFilterThinkingBlocks(mappedModel) {
+		return false
+	}
+	filtered := FilterThinkingBlocks(body, mappedModel)
+	return !bytes.Equal(filtered, body)
+}
+
 // FilterThinkingBlocksForRetry strips thinking-related constructs for retry scenarios.
 //
 // Why:

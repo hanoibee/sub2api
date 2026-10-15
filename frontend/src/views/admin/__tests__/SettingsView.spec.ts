@@ -450,6 +450,7 @@ const baseSettingsResponse = {
   oidc_connect_userinfo_id_path: "",
   oidc_connect_userinfo_username_path: "",
   enable_model_fallback: false,
+  thinking_invalid_signature_policy: "strip",
   fallback_model_anthropic: "",
   fallback_model_openai: "",
   fallback_model_gemini: "",

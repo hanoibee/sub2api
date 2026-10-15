@@ -223,6 +223,9 @@ type UpdateSettingsRequest struct {
 	FallbackModelGemini      string `json:"fallback_model_gemini"`
 	FallbackModelAntigravity string `json:"fallback_model_antigravity"`
 
+	// ThinkingInvalidSignaturePolicy: strip|reject (default strip).
+	ThinkingInvalidSignaturePolicy string `json:"thinking_invalid_signature_policy"`
+
 	// Identity patch configuration (Claude -> Gemini)
 	EnableIdentityPatch bool   `json:"enable_identity_patch"`
 	IdentityPatchPrompt string `json:"identity_patch_prompt"`
@@ -1669,6 +1672,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		FallbackModelOpenAI:                    req.FallbackModelOpenAI,
 		FallbackModelGemini:                    req.FallbackModelGemini,
 		FallbackModelAntigravity:               req.FallbackModelAntigravity,
+		ThinkingInvalidSignaturePolicy:         req.ThinkingInvalidSignaturePolicy,
 		EnableIdentityPatch:                    req.EnableIdentityPatch,
 		IdentityPatchPrompt:                    req.IdentityPatchPrompt,
 		MinClaudeCodeVersion:                   req.MinClaudeCodeVersion,
@@ -2329,6 +2333,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		DefaultUserRPMLimit:                                    updatedSettings.DefaultUserRPMLimit,
 		DefaultSubscriptions:                                   updatedDefaultSubscriptions,
 		EnableModelFallback:                                    updatedSettings.EnableModelFallback,
+		ThinkingInvalidSignaturePolicy:                         updatedSettings.ThinkingInvalidSignaturePolicy,
 		FallbackModelAnthropic:                                 updatedSettings.FallbackModelAnthropic,
 		FallbackModelOpenAI:                                    updatedSettings.FallbackModelOpenAI,
 		FallbackModelGemini:                                    updatedSettings.FallbackModelGemini,

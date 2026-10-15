@@ -39,6 +39,21 @@ const versionBoundsErrorTTL = 5 * time.Second
 // versionBoundsDBTimeout singleflight 内 DB 查询超时，独立于请求 context
 const versionBoundsDBTimeout = 5 * time.Second
 
+// cachedThinkingInvalidSignaturePolicy 缓存全局 thinking.signature 策略（进程内，60s TTL）
+type cachedThinkingInvalidSignaturePolicy struct {
+	policy    string // strip|reject；空视为 strip
+	expiresAt int64  // unix nano
+}
+
+var thinkingInvalidSignaturePolicyCache atomic.Value // *cachedThinkingInvalidSignaturePolicy
+var thinkingInvalidSignaturePolicySF singleflight.Group
+
+const thinkingInvalidSignaturePolicyCacheTTL = 60 * time.Second
+const thinkingInvalidSignaturePolicyErrorTTL = 5 * time.Second
+const thinkingInvalidSignaturePolicyDBTimeout = 5 * time.Second
+
+const thinkingInvalidSignaturePolicySFKey = "thinking_invalid_signature_policy"
+
 // cachedBackendMode Backend Mode cache (in-process, 60s TTL)
 type cachedBackendMode struct {
 	value     bool

@@ -275,6 +275,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		DefaultUserRPMLimit:                                    settings.DefaultUserRPMLimit,
 		DefaultSubscriptions:                                   defaultSubscriptions,
 		EnableModelFallback:                                    settings.EnableModelFallback,
+		ThinkingInvalidSignaturePolicy:                         settings.ThinkingInvalidSignaturePolicy,
 		FallbackModelAnthropic:                                 settings.FallbackModelAnthropic,
 		FallbackModelOpenAI:                                    settings.FallbackModelOpenAI,
 		FallbackModelGemini:                                    settings.FallbackModelGemini,

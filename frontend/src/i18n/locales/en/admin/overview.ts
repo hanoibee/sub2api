@@ -1238,6 +1238,13 @@ export default {
         fallbackHint: 'Non-Claude Code requests will use this group. Leave empty to reject directly.',
         noFallback: 'No Fallback (Reject)'
       },
+      thinkingSignature: {
+        title: 'Invalid thinking.signature policy',
+        hint: 'Applies to Anthropic-strict models only. Inherit uses the system setting; strip drops invalid blocks; reject returns 400 (for signature acceptance tests).',
+        inherit: 'Follow global',
+        strip: 'Strip',
+        reject: 'Reject'
+      },
       openaiMessages: {
         title: 'OpenAI Messages Dispatch',
         allowDispatch: 'Allow /v1/messages dispatch',

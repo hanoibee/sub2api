@@ -1236,6 +1236,13 @@ export default {
         fallbackHint: '非 Claude Code 请求将使用此分组，留空则直接拒绝',
         noFallback: '不降级（直接拒绝）'
       },
+      thinkingSignature: {
+        title: '非法 thinking.signature 策略',
+        hint: '仅影响 Anthropic-strict 模型。跟随全局使用系统设置；strip 剥离非法块后继续；reject 直接 400（验签验收用）。',
+        inherit: '跟随全局',
+        strip: '剥离（strip）',
+        reject: '拒绝（reject）'
+      },
       openaiMessages: {
         title: 'OpenAI Messages 调度配置',
         allowDispatch: '允许 /v1/messages 调度',

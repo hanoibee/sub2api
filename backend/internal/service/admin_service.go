@@ -276,7 +276,9 @@ type CreateGroupInput struct {
 	AudioTTSPricePerMillionChars *float64
 	AudioSTTPricePerHour         *float64
 	ClaudeCodeOnly               bool   // 仅允许 Claude Code 客户端
-	FallbackGroupID              *int64 // 降级分组 ID
+	// ThinkingInvalidSignaturePolicy Anthropic-strict 非法签名策略：""=跟随全局，strip，reject。
+	ThinkingInvalidSignaturePolicy string
+	FallbackGroupID                *int64 // 降级分组 ID
 	// 无效请求兜底分组 ID（仅 anthropic 平台使用）
 	FallbackGroupIDOnInvalidRequest *int64
 	// 模型路由配置（仅 anthropic 平台使用）
@@ -357,8 +359,10 @@ type UpdateGroupInput struct {
 	AudioRealtimePricePerMin     *float64
 	AudioTTSPricePerMillionChars *float64
 	AudioSTTPricePerHour         *float64
-	ClaudeCodeOnly               *bool  // 仅允许 Claude Code 客户端
-	FallbackGroupID              *int64 // 降级分组 ID
+	ClaudeCodeOnly *bool // 仅允许 Claude Code 客户端
+	// ThinkingInvalidSignaturePolicy nil 不修改；空字符串清除为跟随全局；strip|reject 覆盖。
+	ThinkingInvalidSignaturePolicy *string
+	FallbackGroupID                *int64 // 降级分组 ID
 	// 无效请求兜底分组 ID（仅 anthropic 平台使用）
 	FallbackGroupIDOnInvalidRequest *int64
 	// 模型路由配置（仅 anthropic 平台使用）

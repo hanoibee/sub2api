@@ -371,6 +371,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	if before.EnableModelFallback != after.EnableModelFallback {
 		changed = append(changed, "enable_model_fallback")
 	}
+	if before.ThinkingInvalidSignaturePolicy != after.ThinkingInvalidSignaturePolicy {
+		changed = append(changed, "thinking_invalid_signature_policy")
+	}
 	if before.FallbackModelAnthropic != after.FallbackModelAnthropic {
 		changed = append(changed, "fallback_model_anthropic")
 	}

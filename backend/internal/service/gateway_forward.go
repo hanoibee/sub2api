@@ -359,17 +359,23 @@ func (s *GatewayService) Forward(ctx context.Context, c *gin.Context, account *A
 	if err := replaceBody(FilterWebSearchHistoryBlocks(body, reqModel)); err != nil {
 		return nil, err
 	}
-	// Pre-filter: remove thinking blocks with missing/invalid signatures before forwarding.
+	// Pre-filter: thinking.signature policy (strip|reject) for Anthropic-strict models.
 	// Clients (e.g. Claude Code) sometimes send multi-turn conversations where a historical
 	// assistant message contains a thinking block that is missing the required "signature" field,
 	// causing upstream to reject the request with 400 "thinking.signature: Field required".
-	// FilterThinkingBlocks removes only the invalid blocks; thinking blocks with valid signatures
-	// are preserved. This avoids relying solely on the post-error retry path, which can time out
-	// (maxRetryElapsed = 10s) for long conversations before the retry budget is exhausted.
-	//
-	// 仅 anthropic-strict 模型族执行此过滤；passback-required 上游 (DeepSeek/Kimi/GLM 等)
-	// 要求历史 thinking block 原样回传，过滤反而制造 400。reqModel 此时已是映射后的模型 ID。
-	if err := replaceBody(FilterThinkingBlocks(body, reqModel)); err != nil {
+	// Default strip removes only the invalid blocks; group/global reject returns 400 locally.
+	// passback-required 上游 (DeepSeek/Kimi/GLM 等) 要求历史 thinking 原样回传，过滤反而制造 400。
+	var groupID *int64
+	if parsed != nil {
+		groupID = parsed.GroupID
+	}
+	filteredThinking, thinkErr := s.applyThinkingInvalidSignaturePolicy(
+		ctx, c, s.groupForThinkingSignaturePolicy(ctx, c, groupID), body, reqModel,
+	)
+	if thinkErr != nil {
+		return nil, thinkErr
+	}
+	if err := replaceBody(filteredThinking); err != nil {
 		return nil, err
 	}
 	// Chinese LLM thinking.type 协议差异补正（如 MiniMax 只接受 adaptive；Anthropic-SDK

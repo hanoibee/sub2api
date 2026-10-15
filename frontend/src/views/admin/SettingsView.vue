@@ -4489,6 +4489,23 @@
                   {{ t("admin.settings.claudeCode.maxVersionHint") }}
                 </p>
               </div>
+              <div class="mt-4">
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {{ t("admin.settings.claudeCode.thinkingSignaturePolicy") }}
+                </label>
+                <Select
+                  v-model="form.thinking_invalid_signature_policy"
+                  :options="thinkingSignaturePolicyOptions"
+                  class="max-w-xs"
+                />
+                <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                  {{
+                    t("admin.settings.claudeCode.thinkingSignaturePolicyHint")
+                  }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -9597,6 +9614,17 @@ const claudeOAuthSystemPromptCacheTTLOptions = computed(() => [
   { value: "1h", label: t("admin.settings.gatewayForwarding.cacheTTL1h") },
 ]);
 
+const thinkingSignaturePolicyOptions = computed<SelectOption[]>(() => [
+  {
+    value: "strip",
+    label: t("admin.settings.claudeCode.thinkingSignaturePolicyStrip"),
+  },
+  {
+    value: "reject",
+    label: t("admin.settings.claudeCode.thinkingSignaturePolicyReject"),
+  },
+]);
+
 function getClaudeOAuthPresetLabel(
   preset: ClaudeOAuthSystemPromptPreset,
 ): string {
@@ -9977,6 +10005,7 @@ const form = reactive<SettingsForm>({
   google_oauth_frontend_redirect_url: "/auth/oauth/callback",
   // Model fallback
   enable_model_fallback: false,
+  thinking_invalid_signature_policy: "strip",
   fallback_model_anthropic: "claude-3-5-sonnet-20241022",
   fallback_model_openai: "gpt-4o",
   fallback_model_gemini: "gemini-2.5-pro",
@@ -11644,6 +11673,8 @@ async function saveSettings() {
       google_oauth_frontend_redirect_url:
         form.google_oauth_frontend_redirect_url,
       enable_model_fallback: form.enable_model_fallback,
+      thinking_invalid_signature_policy:
+        form.thinking_invalid_signature_policy || "strip",
       fallback_model_anthropic: form.fallback_model_anthropic,
       fallback_model_openai: form.fallback_model_openai,
       fallback_model_gemini: form.fallback_model_gemini,

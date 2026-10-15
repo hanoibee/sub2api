@@ -1438,6 +1438,18 @@
               {{ t("admin.groups.claudeCode.fallbackHint") }}
             </p>
           </div>
+          <div class="mt-3">
+            <label class="input-label">{{
+              t("admin.groups.thinkingSignature.title")
+            }}</label>
+            <Select
+              v-model="createForm.thinking_invalid_signature_policy"
+              :options="thinkingSignaturePolicyGroupOptions"
+            />
+            <p class="input-hint">
+              {{ t("admin.groups.thinkingSignature.hint") }}
+            </p>
+          </div>
         </div>
 
         <!-- Codex 网页搜索按次计费（仅 openai 平台） -->
@@ -3078,6 +3090,18 @@
               {{ t("admin.groups.claudeCode.fallbackHint") }}
             </p>
           </div>
+          <div class="mt-3">
+            <label class="input-label">{{
+              t("admin.groups.thinkingSignature.title")
+            }}</label>
+            <Select
+              v-model="editForm.thinking_invalid_signature_policy"
+              :options="thinkingSignaturePolicyGroupOptions"
+            />
+            <p class="input-hint">
+              {{ t("admin.groups.thinkingSignature.hint") }}
+            </p>
+          </div>
         </div>
 
         <!-- Codex 网页搜索按次计费（仅 openai 平台） -->
@@ -4670,6 +4694,12 @@ const subscriptionTypeOptions = computed(() => [
   { value: "subscription", label: t("admin.groups.subscription.subscription") },
 ]);
 
+const thinkingSignaturePolicyGroupOptions = computed(() => [
+  { value: "", label: t("admin.groups.thinkingSignature.inherit") },
+  { value: "strip", label: t("admin.groups.thinkingSignature.strip") },
+  { value: "reject", label: t("admin.groups.thinkingSignature.reject") },
+]);
+
 // 降级分组选项（创建时）- 仅包含 anthropic 平台且未启用 claude_code_only 的分组
 const fallbackGroupOptions = computed(() => {
   const options: { value: number | null; label: string }[] = [
@@ -4989,6 +5019,7 @@ const createForm = reactive({
   profit_safety_buffer_percent: 0,
   // Claude Code 客户端限制（仅 anthropic 平台使用）
   claude_code_only: false,
+  thinking_invalid_signature_policy: "" as string,
   fallback_group_id: null as number | null,
   fallback_group_id_on_invalid_request: null as number | null,
   // OpenAI Messages 调度配置（仅 openai 平台使用）
@@ -5355,6 +5386,7 @@ const editForm = reactive({
   profit_safety_buffer_percent: 0,
   // Claude Code 客户端限制（仅 anthropic 平台使用）
   claude_code_only: false,
+  thinking_invalid_signature_policy: "" as string,
   fallback_group_id: null as number | null,
   fallback_group_id_on_invalid_request: null as number | null,
   // OpenAI Messages 调度配置（仅 openai 平台使用）
@@ -5812,6 +5844,7 @@ const closeCreateModal = () => {
   createForm.profit_min_margin_percent = 0;
   createForm.profit_safety_buffer_percent = 0;
   createForm.claude_code_only = false;
+  createForm.thinking_invalid_signature_policy = "";
   createForm.fallback_group_id = null;
   createForm.fallback_group_id_on_invalid_request = null;
   resetMessagesDispatchFormState(createForm);
@@ -6110,6 +6143,8 @@ const handleEdit = async (group: AdminGroup) => {
     group.profit_safety_buffer ?? 0,
   );
   editForm.claude_code_only = group.claude_code_only || false;
+  editForm.thinking_invalid_signature_policy =
+    group.thinking_invalid_signature_policy || "";
   editForm.fallback_group_id = group.fallback_group_id;
   editForm.fallback_group_id_on_invalid_request =
     group.fallback_group_id_on_invalid_request;

@@ -175,6 +175,8 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 		SettingKeyFallbackModelOpenAI:      "gpt-4o",
 		SettingKeyFallbackModelGemini:      "gemini-2.5-pro",
 		SettingKeyFallbackModelAntigravity: "gemini-2.5-pro",
+		// Thinking signature policy default (strip preserves Claude Code multi-turn)
+		SettingKeyThinkingInvalidSignaturePolicy: ThinkingInvalidSignaturePolicyStrip,
 		// Identity patch defaults
 		SettingKeyEnableIdentityPatch: "true",
 		SettingKeyIdentityPatchPrompt: "",
@@ -774,6 +776,11 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 	result.FallbackModelOpenAI = s.getStringOrDefault(settings, SettingKeyFallbackModelOpenAI, "gpt-4o")
 	result.FallbackModelGemini = s.getStringOrDefault(settings, SettingKeyFallbackModelGemini, "gemini-2.5-pro")
 	result.FallbackModelAntigravity = s.getStringOrDefault(settings, SettingKeyFallbackModelAntigravity, "gemini-2.5-pro")
+	if p := NormalizeThinkingInvalidSignaturePolicy(settings[SettingKeyThinkingInvalidSignaturePolicy]); p != "" {
+		result.ThinkingInvalidSignaturePolicy = p
+	} else {
+		result.ThinkingInvalidSignaturePolicy = ThinkingInvalidSignaturePolicyStrip
+	}
 
 	// Identity patch settings (default: enabled, to preserve existing behavior)
 	if v, ok := settings[SettingKeyEnableIdentityPatch]; ok && v != "" {

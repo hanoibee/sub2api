@@ -397,6 +397,11 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 	updates[SettingKeyFallbackModelOpenAI] = settings.FallbackModelOpenAI
 	updates[SettingKeyFallbackModelGemini] = settings.FallbackModelGemini
 	updates[SettingKeyFallbackModelAntigravity] = settings.FallbackModelAntigravity
+	thinkingPolicy := NormalizeThinkingInvalidSignaturePolicy(settings.ThinkingInvalidSignaturePolicy)
+	if thinkingPolicy == "" {
+		thinkingPolicy = ThinkingInvalidSignaturePolicyStrip
+	}
+	updates[SettingKeyThinkingInvalidSignaturePolicy] = thinkingPolicy
 
 	// Identity patch configuration (Claude -> Gemini)
 	updates[SettingKeyEnableIdentityPatch] = strconv.FormatBool(settings.EnableIdentityPatch)
@@ -715,6 +720,7 @@ func (s *SettingService) refreshCachedSettings(settings *SystemSettings) {
 		value:     settings.BackendModeEnabled,
 		expiresAt: time.Now().Add(backendModeCacheTTL).UnixNano(),
 	})
+	storeThinkingInvalidSignaturePolicyCache(settings.ThinkingInvalidSignaturePolicy)
 	gatewayForwardingSF.Forget("gateway_forwarding")
 	gatewayForwardingCache.Store(&cachedGatewayForwardingSettings{
 		openAITTFTMode:                   normalizeOpenAITTFTMode(settings.OpenAITTFTMode),
