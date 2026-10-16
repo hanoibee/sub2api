@@ -197,6 +197,37 @@ func TestApplyThinkingInvalidSignaturePolicy_Matrix(t *testing.T) {
 			t.Fatal("passback-required models must not filter")
 		}
 	})
+
+	tamperedBody := []byte(`{
+		"max_tokens": 4096,
+		"messages": [
+			{"content": "u1", "role": "user"},
+			{"content": [{"signature": "CAISiQQKhwEIEBgCKkC0NRQg123@@", "thinking": "x", "type": "thinking"}], "role": "assistant"},
+			{"content": "continue", "role": "user"}
+		],
+		"stream": false
+	}`)
+
+	t.Run("reject_tampered_signature_on_55_models", func(t *testing.T) {
+		group := &Group{ThinkingInvalidSignaturePolicy: ThinkingInvalidSignaturePolicyReject}
+		for _, model := range []string{"claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-5-5", "claude-haiku-5"} {
+			out, err := s.applyThinkingInvalidSignaturePolicy(context.Background(), nil, group, tamperedBody, model)
+			if !errors.Is(err, ErrThinkingInvalidSignature) {
+				t.Fatalf("model=%s err=%v out=%s", model, err, out)
+			}
+		}
+	})
+
+	t.Run("strip_keeps_tampered_nonempty_on_55", func(t *testing.T) {
+		group := &Group{ThinkingInvalidSignaturePolicy: ThinkingInvalidSignaturePolicyStrip}
+		out, err := s.applyThinkingInvalidSignaturePolicy(context.Background(), nil, group, tamperedBody, "claude-sonnet-5-5")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(out, tamperedBody) {
+			t.Fatalf("strip must not rewrite 5.5 history with a non-empty signature: %s", out)
+		}
+	})
 }
 
 func TestGetThinkingInvalidSignaturePolicy_UsesProcessCache(t *testing.T) {

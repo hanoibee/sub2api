@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Wei-Shaw/sub2api/internal/pkg/antigravity"
 	"github.com/gin-gonic/gin"
 )
 
@@ -184,7 +186,7 @@ func (s *GatewayService) applyThinkingInvalidSignaturePolicy(
 ) ([]byte, error) {
 	policy := s.ResolveThinkingInvalidSignaturePolicyForRequest(ctx, group)
 	if policy == ThinkingInvalidSignaturePolicyReject {
-		if WouldFilterThinkingBlocks(body, mappedModel) {
+		if ShouldRejectInvalidThinkingSignature(body, mappedModel) {
 			if c != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"type": "error",
@@ -199,4 +201,85 @@ func (s *GatewayService) applyThinkingInvalidSignaturePolicy(
 		return body, nil
 	}
 	return FilterThinkingBlocks(body, mappedModel), nil
+}
+
+// ShouldRejectInvalidThinkingSignature reports whether reject policy should
+// locally 400. This is broader than WouldFilterThinkingBlocks:
+//
+//   - Missing / empty / dummy signatures still reject (same as strip-would-modify).
+//   - Claude 5.5 defaults to keeping any non-empty signature so that a continuous
+//     thinking history can round-trip. Probe cases tamper the payload with
+//     characters Anthropic never emits (e.g. trailing "123@@"). Those survive
+//     FilterThinkingBlocks and must be rejected here, not forwarded.
+func ShouldRejectInvalidThinkingSignature(body []byte, mappedModel string) bool {
+	if !ShouldPreFilterThinkingBlocks(mappedModel) {
+		return false
+	}
+	if WouldFilterThinkingBlocks(body, mappedModel) {
+		return true
+	}
+	return hasMalformedThinkingSignature(body)
+}
+
+func hasMalformedThinkingSignature(body []byte) bool {
+	var req map[string]any
+	if err := json.Unmarshal(body, &req); err != nil {
+		return false
+	}
+	messages, ok := req["messages"].([]any)
+	if !ok {
+		return false
+	}
+	for _, msg := range messages {
+		msgMap, ok := msg.(map[string]any)
+		if !ok {
+			continue
+		}
+		content, ok := msgMap["content"].([]any)
+		if !ok {
+			continue
+		}
+		for _, block := range content {
+			blockMap, ok := block.(map[string]any)
+			if !ok {
+				continue
+			}
+			blockType, _ := blockMap["type"].(string)
+			switch blockType {
+			case "thinking":
+				signature, _ := blockMap["signature"].(string)
+				if !isPlausibleAnthropicThinkingSignature(signature) {
+					return true
+				}
+			case "redacted_thinking":
+				// 5.5 keeps redacted blocks with non-empty data and no signature.
+				// Only reject when an explicit signature is present and malformed.
+				if raw, ok := blockMap["signature"]; ok {
+					signature, _ := raw.(string)
+					if !isPlausibleAnthropicThinkingSignature(signature) {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
+}
+
+func isPlausibleAnthropicThinkingSignature(signature string) bool {
+	if signature == "" || signature == antigravity.DummyThoughtSignature {
+		return false
+	}
+	for i := 0; i < len(signature); i++ {
+		c := signature[i]
+		switch {
+		case c >= 'A' && c <= 'Z',
+			c >= 'a' && c <= 'z',
+			c >= '0' && c <= '9',
+			c == '+', c == '/', c == '=', c == '-', c == '_':
+		default:
+			return false
+		}
+	}
+	return true
 }
