@@ -52,7 +52,7 @@ const account = (platform = 'grok', type = 'oauth', extra: Record<string, unknow
   id: 12, name: 'Grok', notes: '', platform, type,
   credentials: { expires_at: '2027-01-01T00:00:00Z', token_type: 'Bearer' },
   credentials_status: { has_access_token: true, has_refresh_token: true }, extra,
-  proxy_id: null, concurrency: 1, priority: 1, rate_multiplier: 1, status: 'active',
+  proxy_id: 1, concurrency: 1, priority: 1, rate_multiplier: 1, status: 'active',
   group_ids: [], expires_at: null, auto_pause_on_expired: false
 })
 

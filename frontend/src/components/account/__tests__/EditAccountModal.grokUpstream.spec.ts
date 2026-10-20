@@ -84,7 +84,7 @@ function buildGrokOAuthAccount(
     },
     credentials_status: { has_access_token: true, has_refresh_token: true },
     extra,
-    proxy_id: null,
+    proxy_id: 1,
     concurrency: 1,
     priority: 1,
     rate_multiplier: 1,

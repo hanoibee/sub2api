@@ -96,7 +96,7 @@ func TestAccountHandlerSimpleModeUsesMinimalGroupReferences(t *testing.T) {
 	}{
 		{http.MethodGet, "/accounts", ""},
 		{http.MethodGet, "/accounts/3", ""},
-		{http.MethodPost, "/accounts", `{"name":"account","platform":"anthropic","type":"apikey","credentials":{"key":"x"}}`},
+		{http.MethodPost, "/accounts", `{"name":"account","platform":"anthropic","type":"apikey","credentials":{"key":"x"},"proxy_id":1}`},
 		{http.MethodPut, "/accounts/3", `{"name":"account"}`},
 	}
 	for _, tt := range tests {
@@ -175,7 +175,7 @@ func TestAccountHandlerSimpleModeLitePreservesCompactShapeAndETag(t *testing.T) 
 func TestAccountHandlerSimpleModeRejectsCompositeGroupBindingsBeforeWrites(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	for _, tt := range []struct{ name, method, path, body string }{
-		{"create", http.MethodPost, "/accounts", `{"name":"account","platform":"anthropic","type":"apikey","credentials":{"key":"x"},"group_ids":[9]}`},
+		{"create", http.MethodPost, "/accounts", `{"name":"account","platform":"anthropic","type":"apikey","credentials":{"key":"x"},"group_ids":[9],"proxy_id":1}`},
 		{"update", http.MethodPut, "/accounts/3", `{"group_ids":[9]}`},
 		{"bulk", http.MethodPost, "/accounts/bulk-update", `{"account_ids":[3],"group_ids":[9]}`},
 	} {
@@ -208,7 +208,7 @@ func TestAccountHandlerSimpleModePreservesBasicGroupBinding(t *testing.T) {
 	r := gin.New()
 	r.POST("/accounts", h.Create)
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/accounts", bytes.NewBufferString(`{"name":"account","platform":"anthropic","type":"apikey","credentials":{"key":"x"},"group_ids":[7]}`))
+	req := httptest.NewRequest(http.MethodPost, "/accounts", bytes.NewBufferString(`{"name":"account","platform":"anthropic","type":"apikey","credentials":{"key":"x"},"group_ids":[7],"proxy_id":1}`))
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(res, req)
 	require.Equal(t, http.StatusOK, res.Code, res.Body.String())

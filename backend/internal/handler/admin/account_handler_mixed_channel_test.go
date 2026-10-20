@@ -101,6 +101,7 @@ func TestAccountHandlerCreateMixedChannelConflictSimplifiedResponse(t *testing.T
 		"type":        "oauth",
 		"credentials": map[string]any{"refresh_token": "rt"},
 		"group_ids":   []int64{27},
+		"proxy_id":    1,
 	})
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/admin/accounts", bytes.NewReader(body))

@@ -138,6 +138,29 @@ const ModelWhitelistSelectorStub = defineComponent({
   >models</button>`,
 })
 
+// [fork] A proxy is mandatory; the stub picks proxy 1 whenever the form has
+// none so existing submit tests keep reaching the API. Set autoSelectProxy to
+// false to exercise the "no proxy selected" path.
+let autoSelectProxy = true
+const ProxySelectorStub = defineComponent({
+  name: 'ProxySelector',
+  props: {
+    modelValue: { type: Number, default: null },
+    proxies: { type: Array, default: () => [] },
+    required: Boolean,
+  },
+  emits: ['update:modelValue'],
+  watch: {
+    modelValue: {
+      immediate: true,
+      handler(value: number | null) {
+        if (autoSelectProxy && value == null) this.$emit('update:modelValue', 1)
+      },
+    },
+  },
+  template: '<div data-testid="proxy-selector" :data-required="required" />',
+})
+
 function mountModal(groups: any[] = []) {
   return mount(CreateAccountModal, {
     props: { show: true, proxies: [], groups },
@@ -149,7 +172,7 @@ function mountModal(groups: any[] = []) {
         Select: true,
         Icon: true,
         PlatformIcon: true,
-        ProxySelector: true,
+        ProxySelector: ProxySelectorStub,
         ProxyAdBanner: true,
         GroupSelector: GroupSelectorStub,
         ModelWhitelistSelector: ModelWhitelistSelectorStub,
@@ -1039,5 +1062,28 @@ describe('CreateAccountModal Vertex API key auth', () => {
     await selectButtonByText(wrapper, 'admin.accounts.vertexLabel')
     expect(wrapper.find('[data-testid="vertex-auth-mode-apikey"]').exists()).toBe(false)
     expect(wrapper.find('[data-testid="vertex-api-key-input"]').exists()).toBe(false)
+  })
+})
+
+describe('CreateAccountModal proxy requirement', () => {
+  afterEach(() => {
+    autoSelectProxy = true
+  })
+
+  it('marks the proxy selector as required and sends the chosen proxy', async () => {
+    createAccountMock.mockClear()
+    const wrapper = await submitApiKeyAccount('anthropic')
+
+    expect(wrapper.get('[data-testid="proxy-selector"]').attributes('data-required')).toBe('true')
+    expect(createAccountMock).toHaveBeenCalledTimes(1)
+    expect(createAccountMock.mock.calls[0]?.[0]?.proxy_id).toBe(1)
+  })
+
+  it('does not create the account without a proxy', async () => {
+    autoSelectProxy = false
+    createAccountMock.mockClear()
+    await submitApiKeyAccount('anthropic')
+
+    expect(createAccountMock).not.toHaveBeenCalled()
   })
 })

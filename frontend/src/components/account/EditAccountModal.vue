@@ -1768,10 +1768,12 @@
 
       <div v-if="!isSparkShadow">
         <div class="mb-1 flex items-center gap-2">
-          <label class="input-label mb-0">{{ t('admin.accounts.proxy') }}</label>
+          <label class="input-label mb-0">
+            {{ t('admin.accounts.proxy') }} <span class="text-red-500">*</span>
+          </label>
           <ProxyAdBanner />
         </div>
-        <ProxySelector v-model="form.proxy_id" :proxies="proxies" />
+        <ProxySelector v-model="form.proxy_id" :proxies="proxies" required />
       </div>
 
       <UpstreamRequestIdHeaderField
@@ -5327,6 +5329,12 @@ const handleSubmit = async () => {
 
   if (form.status !== 'active' && form.status !== 'inactive' && form.status !== 'error') {
     appStore.showError(t('admin.accounts.pleaseSelectStatus'))
+    return
+  }
+  // [fork] Every account must use a proxy. Spark shadows inherit the parent's
+  // proxy and do not show the selector, so they are exempt.
+  if (!isSparkShadow.value && !form.proxy_id) {
+    appStore.showError(t('admin.accounts.pleaseSelectProxy'))
     return
   }
 	if (autoResetCreditEnabled.value) {

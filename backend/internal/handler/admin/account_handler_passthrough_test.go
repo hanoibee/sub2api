@@ -48,6 +48,7 @@ func TestAccountHandler_Create_AnthropicAPIKeyPassthroughExtraForwarded(t *testi
 		},
 		"concurrency": 1,
 		"priority":    1,
+		"proxy_id":    1,
 	}
 	raw, err := json.Marshal(body)
 	require.NoError(t, err)

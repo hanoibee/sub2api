@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import {
   BUILTIN_PLATFORM_CATALOG,
   resetPlatformCatalog,
@@ -161,7 +161,7 @@ function buildAccount() {
       }
     },
     extra: {},
-    proxy_id: null,
+    proxy_id: 1,
     concurrency: 1,
     priority: 1,
     rate_multiplier: 1,
@@ -211,7 +211,7 @@ function buildVertexAccount() {
       tier_id: 'vertex'
     },
     extra: {},
-    proxy_id: null,
+    proxy_id: 1,
     concurrency: 1,
     priority: 1,
     rate_multiplier: 1,
@@ -236,7 +236,7 @@ function buildAntigravityAccount(projectId = 'configured-project') {
       }
     },
     extra: {},
-    proxy_id: null,
+    proxy_id: 1,
     concurrency: 1,
     priority: 1,
     rate_multiplier: 1,
@@ -262,7 +262,7 @@ function buildGrokOAuthAccount() {
       }
     },
     extra: {},
-    proxy_id: null,
+    proxy_id: 1,
     concurrency: 1,
     priority: 1,
     rate_multiplier: 1,
@@ -1902,7 +1902,7 @@ describe('EditAccountModal gemini explicit cache upstream switch', () => {
       credentials: { api_key: 'sk-upstream', ...credentials },
       credentials_status: { has_api_key: true },
       extra: {},
-      proxy_id: null,
+      proxy_id: 1,
       concurrency: 1,
       priority: 1,
       rate_multiplier: 1,
@@ -2036,5 +2036,38 @@ describe('EditAccountModal temp-unschedulable rule scope', () => {
 
     expect(checkedScopes(wrapper)).toEqual(['temp-unsched-scope-model'])
     wrapper.unmount()
+  })
+})
+
+describe('EditAccountModal proxy requirement', () => {
+  beforeEach(() => {
+    authIsSimpleMode.value = true
+    updateAccountMock.mockReset().mockImplementation(async (_id, payload) => ({ ...buildAccount(), ...payload }))
+    checkMixedChannelRiskMock.mockReset().mockResolvedValue({ has_risk: false })
+  })
+
+  it('blocks saving an account that has no proxy', async () => {
+    const wrapper = mountModal({ ...buildAccount(), proxy_id: null } as any)
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).not.toHaveBeenCalled()
+  })
+
+  it('saves when the account has a proxy', async () => {
+    const wrapper = mountModal({ ...buildAccount(), proxy_id: 5 } as any)
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).toHaveBeenCalledTimes(1)
+    expect(updateAccountMock.mock.calls[0]?.[1]?.proxy_id).toBe(5)
+  })
+
+  it('does not require a proxy for spark shadow accounts', async () => {
+    const wrapper = mountModal({ ...buildOpenAISparkShadowAccount(), proxy_id: null })
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).toHaveBeenCalledTimes(1)
   })
 })

@@ -1197,6 +1197,8 @@ export default {
       expired: '已过期',
       proxy: '代理',
       noProxy: '无代理',
+      selectProxy: '请选择代理',
+      pleaseSelectProxy: '请选择代理：账号必须配置代理',
       concurrency: '并发数',
       loadFactor: '负载因子',
       loadFactorHint: '提高负载因子可以提高对账号的调度频率',

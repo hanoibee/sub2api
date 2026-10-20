@@ -66,8 +66,9 @@
 
         <!-- Options list -->
         <div class="select-options">
-          <!-- No Proxy option -->
+          <!-- No Proxy option (hidden when a proxy is required) -->
           <div
+            v-if="!required"
             @click="selectOption(null)"
             :class="['select-option', modelValue === null && 'select-option-selected']"
           >
@@ -190,10 +191,13 @@ interface Props {
   modelValue: number | null
   proxies: Proxy[]
   disabled?: boolean
+  // [fork] true hides the "No Proxy" option for forms where a proxy is mandatory
+  required?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
+  disabled: false,
+  required: false
 })
 
 const emit = defineEmits<{
@@ -217,7 +221,7 @@ const selectedProxy = computed(() => {
 
 const selectedLabel = computed(() => {
   if (!selectedProxy.value) {
-    return t('admin.accounts.noProxy')
+    return props.required ? t('admin.accounts.selectProxy') : t('admin.accounts.noProxy')
   }
   const proxy = selectedProxy.value
   return `${proxy.name} (${proxy.protocol}://${proxy.host}:${proxy.port})`

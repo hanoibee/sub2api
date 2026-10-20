@@ -1095,6 +1095,8 @@ export default {
       expired: 'Expired',
       proxy: 'Proxy',
       noProxy: 'No Proxy',
+      selectProxy: 'Select a proxy',
+      pleaseSelectProxy: 'Please select a proxy: every account must use one',
       concurrency: 'Concurrency',
       loadFactor: 'Load Factor',
       loadFactorHint: 'Higher load factor increases scheduling frequency',

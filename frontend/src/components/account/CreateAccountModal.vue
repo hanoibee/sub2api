@@ -3226,10 +3226,12 @@
 
       <div>
         <div class="mb-1 flex items-center gap-2">
-          <label class="input-label mb-0">{{ t('admin.accounts.proxy') }}</label>
+          <label class="input-label mb-0">
+            {{ t('admin.accounts.proxy') }} <span class="text-red-500">*</span>
+          </label>
           <ProxyAdBanner />
         </div>
-        <ProxySelector v-model="form.proxy_id" :proxies="proxies" />
+        <ProxySelector v-model="form.proxy_id" :proxies="proxies" required />
       </div>
 
       <UpstreamRequestIdHeaderField
@@ -5938,6 +5940,12 @@ const handleVertexServiceAccountDrop = async (event: DragEvent) => {
 }
 
 const handleSubmit = async () => {
+  // [fork] Every account must use a proxy; checked before any flow so OAuth
+  // URLs are also generated through the chosen proxy.
+  if (!form.proxy_id) {
+    appStore.showError(t('admin.accounts.pleaseSelectProxy'))
+    return
+  }
   // For OAuth-based type, handle OAuth flow (goes to step 2)
   if (isOAuthFlow.value) {
     if (!isGrokSSOInputMethod.value && !form.name.trim()) {
