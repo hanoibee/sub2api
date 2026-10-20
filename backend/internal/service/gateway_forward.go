@@ -370,7 +370,7 @@ func (s *GatewayService) Forward(ctx context.Context, c *gin.Context, account *A
 		groupID = parsed.GroupID
 	}
 	filteredThinking, thinkErr := s.applyThinkingInvalidSignaturePolicy(
-		ctx, c, s.groupForThinkingSignaturePolicy(ctx, c, groupID), body, reqModel,
+		ctx, c, thinkingSignaturePolicyGroupID(c, groupID), body, reqModel,
 	)
 	if thinkErr != nil {
 		return nil, thinkErr

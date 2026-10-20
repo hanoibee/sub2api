@@ -46,6 +46,7 @@ func (s *adminServiceImpl) ListGroups(ctx context.Context, page, pageSize int, p
 	if err != nil {
 		return nil, 0, err
 	}
+	s.overlayGroupSliceThinkingSignaturePolicies(ctx, groups)
 	return groups, result.Total, nil
 }
 
@@ -72,6 +73,7 @@ func (s *adminServiceImpl) GetGroup(ctx context.Context, id int64) (*Group, erro
 	if err := s.validateSimpleModeGroupAccess(group); err != nil {
 		return nil, err
 	}
+	s.overlayGroupThinkingSignaturePolicies(ctx, group)
 	return group, nil
 }
 
@@ -644,6 +646,7 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 	if err := s.groupRepo.Create(ctx, group); err != nil {
 		return nil, err
 	}
+	s.saveCreatedGroupThinkingSignaturePolicy(ctx, group)
 
 	// require_oauth_only: 过滤掉 apikey 类型账号
 	if group.RequireOAuthOnly && groupSupportsOAuthOnlyFilter(group.Platform) && len(accountIDsToCopy) > 0 {
@@ -767,6 +770,7 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 	if err != nil {
 		return nil, err
 	}
+	s.overlayGroupThinkingSignaturePolicies(ctx, group)
 	if err := s.validateSimpleModeGroupAccess(group); err != nil {
 		return nil, err
 	}
@@ -1083,6 +1087,11 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 	if err := s.groupRepo.Update(ctx, group); err != nil {
 		return nil, err
 	}
+	if input.ThinkingInvalidSignaturePolicy != nil {
+		if err := s.saveGroupThinkingSignaturePolicy(ctx, group); err != nil {
+			return nil, fmt.Errorf("save thinking_invalid_signature_policy: %w", err)
+		}
+	}
 
 	if s.authCacheInvalidator != nil {
 		s.authCacheInvalidator.InvalidateAuthCacheByGroupID(ctx, id)
@@ -1234,6 +1243,7 @@ func (s *adminServiceImpl) deleteGroup(ctx context.Context, id int64, requireEmp
 	if err != nil {
 		return err
 	}
+	s.deleteGroupThinkingSignaturePolicy(ctx, id)
 	// 注意：user_group_rate_multipliers 表通过外键 ON DELETE CASCADE 自动清理
 
 	// 事务成功后，异步失效受影响用户的订阅缓存

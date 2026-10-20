@@ -78,10 +78,7 @@ type Group struct {
 
 	// Claude Code 客户端限制
 	ClaudeCodeOnly  bool
-	// ThinkingInvalidSignaturePolicy controls Anthropic-strict prefilter for
-	// invalid/missing thinking.signature: ""=follow global, strip, reject.
-	ThinkingInvalidSignaturePolicy string
-	FallbackGroupID                *int64
+	FallbackGroupID *int64
 	// 无效请求兜底分组（仅 anthropic 平台使用）
 	FallbackGroupIDOnInvalidRequest *int64
 
@@ -143,6 +140,12 @@ type Group struct {
 	AccountCount            int64
 	ActiveAccountCount      int64
 	RateLimitedAccountCount int64
+
+	// [fork] Anthropic-strict thinking.signature override: ""=follow global,
+	// strip, reject. Not a groups column: stored in settings and filled in by
+	// the admin service for admin views only. The gateway reads it by group ID
+	// (see GetGroupThinkingInvalidSignaturePolicy), never from this field.
+	ThinkingInvalidSignaturePolicy string
 }
 
 // IsGroupBindableInSimpleMode is the shared policy for groups that may be

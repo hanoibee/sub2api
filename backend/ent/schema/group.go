@@ -204,11 +204,6 @@ func (Group) Fields() []ent.Field {
 		field.Bool("claude_code_only").
 			Default(false).
 			Comment("是否仅允许 Claude Code 客户端"),
-		// Thinking signature policy (added by migration 246)
-		field.String("thinking_invalid_signature_policy").
-			Default("").
-			MaxLen(20).
-			Comment("Anthropic-strict thinking.signature 策略：空=跟随全局，strip=剥离，reject=直接 400"),
 		field.Int64("fallback_group_id").
 			Optional().
 			Nillable().

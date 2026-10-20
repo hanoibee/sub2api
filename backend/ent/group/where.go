@@ -255,11 +255,6 @@ func ClaudeCodeOnly(v bool) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldClaudeCodeOnly, v))
 }
 
-// ThinkingInvalidSignaturePolicy applies equality check predicate on the "thinking_invalid_signature_policy" field. It's identical to ThinkingInvalidSignaturePolicyEQ.
-func ThinkingInvalidSignaturePolicy(v string) predicate.Group {
-	return predicate.Group(sql.FieldEQ(FieldThinkingInvalidSignaturePolicy, v))
-}
-
 // FallbackGroupID applies equality check predicate on the "fallback_group_id" field. It's identical to FallbackGroupIDEQ.
 func FallbackGroupID(v int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldFallbackGroupID, v))
@@ -2098,71 +2093,6 @@ func ClaudeCodeOnlyEQ(v bool) predicate.Group {
 // ClaudeCodeOnlyNEQ applies the NEQ predicate on the "claude_code_only" field.
 func ClaudeCodeOnlyNEQ(v bool) predicate.Group {
 	return predicate.Group(sql.FieldNEQ(FieldClaudeCodeOnly, v))
-}
-
-// ThinkingInvalidSignaturePolicyEQ applies the EQ predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyEQ(v string) predicate.Group {
-	return predicate.Group(sql.FieldEQ(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyNEQ applies the NEQ predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyNEQ(v string) predicate.Group {
-	return predicate.Group(sql.FieldNEQ(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyIn applies the In predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyIn(vs ...string) predicate.Group {
-	return predicate.Group(sql.FieldIn(FieldThinkingInvalidSignaturePolicy, vs...))
-}
-
-// ThinkingInvalidSignaturePolicyNotIn applies the NotIn predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyNotIn(vs ...string) predicate.Group {
-	return predicate.Group(sql.FieldNotIn(FieldThinkingInvalidSignaturePolicy, vs...))
-}
-
-// ThinkingInvalidSignaturePolicyGT applies the GT predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyGT(v string) predicate.Group {
-	return predicate.Group(sql.FieldGT(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyGTE applies the GTE predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyGTE(v string) predicate.Group {
-	return predicate.Group(sql.FieldGTE(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyLT applies the LT predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyLT(v string) predicate.Group {
-	return predicate.Group(sql.FieldLT(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyLTE applies the LTE predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyLTE(v string) predicate.Group {
-	return predicate.Group(sql.FieldLTE(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyContains applies the Contains predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyContains(v string) predicate.Group {
-	return predicate.Group(sql.FieldContains(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyHasPrefix applies the HasPrefix predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyHasPrefix(v string) predicate.Group {
-	return predicate.Group(sql.FieldHasPrefix(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyHasSuffix applies the HasSuffix predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyHasSuffix(v string) predicate.Group {
-	return predicate.Group(sql.FieldHasSuffix(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyEqualFold applies the EqualFold predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyEqualFold(v string) predicate.Group {
-	return predicate.Group(sql.FieldEqualFold(FieldThinkingInvalidSignaturePolicy, v))
-}
-
-// ThinkingInvalidSignaturePolicyContainsFold applies the ContainsFold predicate on the "thinking_invalid_signature_policy" field.
-func ThinkingInvalidSignaturePolicyContainsFold(v string) predicate.Group {
-	return predicate.Group(sql.FieldContainsFold(FieldThinkingInvalidSignaturePolicy, v))
 }
 
 // FallbackGroupIDEQ applies the EQ predicate on the "fallback_group_id" field.

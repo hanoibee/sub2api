@@ -139,10 +139,8 @@ type Group struct {
 	AudioSttPricePerHour         *float64 `json:"audio_stt_price_per_hour"`
 
 	// Claude Code 客户端限制
-	ClaudeCodeOnly bool `json:"claude_code_only"`
-	// ThinkingInvalidSignaturePolicy: ""=follow global, strip, reject.
-	ThinkingInvalidSignaturePolicy string `json:"thinking_invalid_signature_policy"`
-	FallbackGroupID                *int64 `json:"fallback_group_id"`
+	ClaudeCodeOnly  bool   `json:"claude_code_only"`
+	FallbackGroupID *int64 `json:"fallback_group_id"`
 	// 无效请求兜底分组
 	FallbackGroupIDOnInvalidRequest *int64 `json:"fallback_group_id_on_invalid_request"`
 
@@ -163,6 +161,9 @@ type Group struct {
 	MaxReasoningEffortOverLimit string `json:"max_reasoning_effort_over_limit"`
 	// ReasoningEffortMappings Anthropic/OpenAI 推理强度映射，可按模型精确名、前缀或后缀限定。
 	ReasoningEffortMappings []domain.ReasoningEffortMapping `json:"reasoning_effort_mappings"`
+
+	// [fork] ThinkingInvalidSignaturePolicy: ""=follow global, strip, reject.
+	ThinkingInvalidSignaturePolicy string `json:"thinking_invalid_signature_policy"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

@@ -135,9 +135,8 @@ func cloneGroupForDuplicate(source *Group, operationID string) *Group {
 		AudioRealtimePricePerMin:        cloneGroupValuePointer(source.AudioRealtimePricePerMin),
 		AudioTTSPricePerMillionChars:    cloneGroupValuePointer(source.AudioTTSPricePerMillionChars),
 		AudioSTTPricePerHour:            cloneGroupValuePointer(source.AudioSTTPricePerHour),
-		ClaudeCodeOnly:                 source.ClaudeCodeOnly,
-		ThinkingInvalidSignaturePolicy: source.ThinkingInvalidSignaturePolicy,
-		FallbackGroupID:                cloneGroupValuePointer(source.FallbackGroupID),
+		ClaudeCodeOnly:                  source.ClaudeCodeOnly,
+		FallbackGroupID:                 cloneGroupValuePointer(source.FallbackGroupID),
 		FallbackGroupIDOnInvalidRequest: cloneGroupValuePointer(source.FallbackGroupIDOnInvalidRequest),
 		ModelRouting:                    cloneGroupModelRouting(source.ModelRouting),
 		ModelRoutingEnabled:             source.ModelRoutingEnabled,
@@ -189,6 +188,7 @@ func (s *adminServiceImpl) RecoverDuplicateGroup(ctx context.Context, id int64, 
 	if err != nil {
 		return nil, fmt.Errorf("load recovered duplicate group: %w", err)
 	}
+	s.overlayGroupThinkingSignaturePolicies(ctx, hydrated)
 	return hydrated, nil
 }
 
@@ -227,6 +227,7 @@ func (s *adminServiceImpl) DuplicateGroup(ctx context.Context, id int64, actorSc
 			if loadErr != nil {
 				return nil, fmt.Errorf("load duplicate group: %w", loadErr)
 			}
+			s.copyGroupThinkingSignaturePolicy(ctx, source.ID, hydrated)
 			return hydrated, nil
 		} else if !errors.Is(err, ErrGroupExists) {
 			return nil, fmt.Errorf("create duplicate group: %w", err)

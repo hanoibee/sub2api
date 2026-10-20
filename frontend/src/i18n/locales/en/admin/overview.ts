@@ -1240,7 +1240,7 @@ export default {
       },
       thinkingSignature: {
         title: 'Invalid thinking.signature policy',
-        hint: 'Applies to Anthropic-strict models only. Inherit uses the system setting; strip drops invalid blocks; reject returns 400 (for signature acceptance tests).',
+        hint: 'Applies to Anthropic-strict models only. Inherit uses the system setting; strip drops blocks with missing signatures and forwards non-empty ones as-is; reject returns 400 for missing or malformed signatures (format check only, not authenticity; for signature acceptance tests).',
         inherit: 'Follow global',
         strip: 'Strip',
         reject: 'Reject'

@@ -92,7 +92,7 @@ func (s *GatewayService) forwardAnthropicAPIKeyPassthroughWithInput(
 		groupID = input.Parsed.GroupID
 	}
 	filteredThinking, thinkErr := s.applyThinkingInvalidSignaturePolicy(
-		ctx, c, s.groupForThinkingSignaturePolicy(ctx, c, groupID), input.Body, input.RequestModel,
+		ctx, c, thinkingSignaturePolicyGroupID(c, groupID), input.Body, input.RequestModel,
 	)
 	if thinkErr != nil {
 		return nil, thinkErr

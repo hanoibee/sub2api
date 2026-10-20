@@ -447,7 +447,7 @@ export default {
           'Reject Claude Code clients above this version (semver format). Leave empty to allow any version.',
         thinkingSignaturePolicy: 'Invalid thinking.signature policy',
         thinkingSignaturePolicyHint:
-          'Global default when Anthropic-strict models receive missing/invalid thinking.signature. Groups may override. strip=drop invalid blocks and forward (Claude Code multi-turn); reject=return 400 (signature acceptance tests).',
+          'Global default when Anthropic-strict models receive missing/invalid thinking.signature. Groups may override. strip=drop blocks with missing signatures and forward (Claude Code multi-turn); non-empty signatures are forwarded as-is. reject=return 400 for missing signatures or signatures with illegal characters (signature acceptance tests). reject is a format check only: a signature tampered with base64 characters still passes, only the upstream can verify authenticity.',
         thinkingSignaturePolicyStrip: 'Strip',
         thinkingSignaturePolicyReject: 'Reject',
       },

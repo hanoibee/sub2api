@@ -840,20 +840,6 @@ func (_u *GroupUpdate) SetNillableClaudeCodeOnly(v *bool) *GroupUpdate {
 	return _u
 }
 
-// SetThinkingInvalidSignaturePolicy sets the "thinking_invalid_signature_policy" field.
-func (_u *GroupUpdate) SetThinkingInvalidSignaturePolicy(v string) *GroupUpdate {
-	_u.mutation.SetThinkingInvalidSignaturePolicy(v)
-	return _u
-}
-
-// SetNillableThinkingInvalidSignaturePolicy sets the "thinking_invalid_signature_policy" field if the given value is not nil.
-func (_u *GroupUpdate) SetNillableThinkingInvalidSignaturePolicy(v *string) *GroupUpdate {
-	if v != nil {
-		_u.SetThinkingInvalidSignaturePolicy(*v)
-	}
-	return _u
-}
-
 // SetFallbackGroupID sets the "fallback_group_id" field.
 func (_u *GroupUpdate) SetFallbackGroupID(v int64) *GroupUpdate {
 	_u.mutation.ResetFallbackGroupID()
@@ -1553,11 +1539,6 @@ func (_u *GroupUpdate) check() error {
 			return &ValidationError{Name: "audio_stt_price_per_hour", err: fmt.Errorf(`ent: validator failed for field "Group.audio_stt_price_per_hour": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.ThinkingInvalidSignaturePolicy(); ok {
-		if err := group.ThinkingInvalidSignaturePolicyValidator(v); err != nil {
-			return &ValidationError{Name: "thinking_invalid_signature_policy", err: fmt.Errorf(`ent: validator failed for field "Group.thinking_invalid_signature_policy": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DefaultMappedModel(); ok {
 		if err := group.DefaultMappedModelValidator(v); err != nil {
 			return &ValidationError{Name: "default_mapped_model", err: fmt.Errorf(`ent: validator failed for field "Group.default_mapped_model": %w`, err)}
@@ -1835,9 +1816,6 @@ func (_u *GroupUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.ClaudeCodeOnly(); ok {
 		_spec.SetField(group.FieldClaudeCodeOnly, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.ThinkingInvalidSignaturePolicy(); ok {
-		_spec.SetField(group.FieldThinkingInvalidSignaturePolicy, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.FallbackGroupID(); ok {
 		_spec.SetField(group.FieldFallbackGroupID, field.TypeInt64, value)
@@ -3065,20 +3043,6 @@ func (_u *GroupUpdateOne) SetNillableClaudeCodeOnly(v *bool) *GroupUpdateOne {
 	return _u
 }
 
-// SetThinkingInvalidSignaturePolicy sets the "thinking_invalid_signature_policy" field.
-func (_u *GroupUpdateOne) SetThinkingInvalidSignaturePolicy(v string) *GroupUpdateOne {
-	_u.mutation.SetThinkingInvalidSignaturePolicy(v)
-	return _u
-}
-
-// SetNillableThinkingInvalidSignaturePolicy sets the "thinking_invalid_signature_policy" field if the given value is not nil.
-func (_u *GroupUpdateOne) SetNillableThinkingInvalidSignaturePolicy(v *string) *GroupUpdateOne {
-	if v != nil {
-		_u.SetThinkingInvalidSignaturePolicy(*v)
-	}
-	return _u
-}
-
 // SetFallbackGroupID sets the "fallback_group_id" field.
 func (_u *GroupUpdateOne) SetFallbackGroupID(v int64) *GroupUpdateOne {
 	_u.mutation.ResetFallbackGroupID()
@@ -3791,11 +3755,6 @@ func (_u *GroupUpdateOne) check() error {
 			return &ValidationError{Name: "audio_stt_price_per_hour", err: fmt.Errorf(`ent: validator failed for field "Group.audio_stt_price_per_hour": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.ThinkingInvalidSignaturePolicy(); ok {
-		if err := group.ThinkingInvalidSignaturePolicyValidator(v); err != nil {
-			return &ValidationError{Name: "thinking_invalid_signature_policy", err: fmt.Errorf(`ent: validator failed for field "Group.thinking_invalid_signature_policy": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DefaultMappedModel(); ok {
 		if err := group.DefaultMappedModelValidator(v); err != nil {
 			return &ValidationError{Name: "default_mapped_model", err: fmt.Errorf(`ent: validator failed for field "Group.default_mapped_model": %w`, err)}
@@ -4090,9 +4049,6 @@ func (_u *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error)
 	}
 	if value, ok := _u.mutation.ClaudeCodeOnly(); ok {
 		_spec.SetField(group.FieldClaudeCodeOnly, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.ThinkingInvalidSignaturePolicy(); ok {
-		_spec.SetField(group.FieldThinkingInvalidSignaturePolicy, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.FallbackGroupID(); ok {
 		_spec.SetField(group.FieldFallbackGroupID, field.TypeInt64, value)

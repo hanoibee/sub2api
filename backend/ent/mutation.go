@@ -22146,7 +22146,6 @@ type GroupMutation struct {
 	model_pricing                           *jsontext.Value
 	appendmodel_pricing                     jsontext.Value
 	claude_code_only                        *bool
-	thinking_invalid_signature_policy       *string
 	fallback_group_id                       *int64
 	addfallback_group_id                    *int64
 	fallback_group_id_on_invalid_request    *int64
@@ -24546,42 +24545,6 @@ func (m *GroupMutation) ResetClaudeCodeOnly() {
 	m.claude_code_only = nil
 }
 
-// SetThinkingInvalidSignaturePolicy sets the "thinking_invalid_signature_policy" field.
-func (m *GroupMutation) SetThinkingInvalidSignaturePolicy(s string) {
-	m.thinking_invalid_signature_policy = &s
-}
-
-// ThinkingInvalidSignaturePolicy returns the value of the "thinking_invalid_signature_policy" field in the mutation.
-func (m *GroupMutation) ThinkingInvalidSignaturePolicy() (r string, exists bool) {
-	v := m.thinking_invalid_signature_policy
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldThinkingInvalidSignaturePolicy returns the old "thinking_invalid_signature_policy" field's value of the Group entity.
-// If the Group object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldThinkingInvalidSignaturePolicy(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldThinkingInvalidSignaturePolicy is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldThinkingInvalidSignaturePolicy requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldThinkingInvalidSignaturePolicy: %w", err)
-	}
-	return oldValue.ThinkingInvalidSignaturePolicy, nil
-}
-
-// ResetThinkingInvalidSignaturePolicy resets all changes to the "thinking_invalid_signature_policy" field.
-func (m *GroupMutation) ResetThinkingInvalidSignaturePolicy() {
-	m.thinking_invalid_signature_policy = nil
-}
-
 // SetFallbackGroupID sets the "fallback_group_id" field.
 func (m *GroupMutation) SetFallbackGroupID(i int64) {
 	m.fallback_group_id = &i
@@ -25995,7 +25958,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 68)
+	fields := make([]string, 0, 67)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -26124,9 +26087,6 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.claude_code_only != nil {
 		fields = append(fields, group.FieldClaudeCodeOnly)
-	}
-	if m.thinking_invalid_signature_policy != nil {
-		fields = append(fields, group.FieldThinkingInvalidSignaturePolicy)
 	}
 	if m.fallback_group_id != nil {
 		fields = append(fields, group.FieldFallbackGroupID)
@@ -26294,8 +26254,6 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.ModelPricing()
 	case group.FieldClaudeCodeOnly:
 		return m.ClaudeCodeOnly()
-	case group.FieldThinkingInvalidSignaturePolicy:
-		return m.ThinkingInvalidSignaturePolicy()
 	case group.FieldFallbackGroupID:
 		return m.FallbackGroupID()
 	case group.FieldFallbackGroupIDOnInvalidRequest:
@@ -26439,8 +26397,6 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldModelPricing(ctx)
 	case group.FieldClaudeCodeOnly:
 		return m.OldClaudeCodeOnly(ctx)
-	case group.FieldThinkingInvalidSignaturePolicy:
-		return m.OldThinkingInvalidSignaturePolicy(ctx)
 	case group.FieldFallbackGroupID:
 		return m.OldFallbackGroupID(ctx)
 	case group.FieldFallbackGroupIDOnInvalidRequest:
@@ -26798,13 +26754,6 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetClaudeCodeOnly(v)
-		return nil
-	case group.FieldThinkingInvalidSignaturePolicy:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetThinkingInvalidSignaturePolicy(v)
 		return nil
 	case group.FieldFallbackGroupID:
 		v, ok := value.(int64)
@@ -27613,9 +27562,6 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldClaudeCodeOnly:
 		m.ResetClaudeCodeOnly()
-		return nil
-	case group.FieldThinkingInvalidSignaturePolicy:
-		m.ResetThinkingInvalidSignaturePolicy()
 		return nil
 	case group.FieldFallbackGroupID:
 		m.ResetFallbackGroupID()

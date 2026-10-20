@@ -440,7 +440,7 @@ export default {
         maxVersionHint: '拒绝高于此版本的 Claude Code 客户端请求（semver 格式）。留空则不限制最高版本。',
         thinkingSignaturePolicy: '非法 thinking.signature 策略',
         thinkingSignaturePolicyHint:
-          'Anthropic-strict 模型遇到缺失/非法 thinking.signature 时的全局默认行为。分组可单独覆盖。strip=剥离后继续转发（兼容 Claude Code 多轮）；reject=直接返回 400（用于验签验收）。',
+          'Anthropic-strict 模型遇到缺失/非法 thinking.signature 时的全局默认行为。分组可单独覆盖。strip=剥离缺失签名的块后继续转发（兼容 Claude Code 多轮），非空签名一律原样转发；reject=缺失或含非法字符的签名直接返回 400（用于验签验收）。reject 只做格式检查，无法识别仅用合法 base64 字符篡改的签名，签名真伪只能由上游校验。',
         thinkingSignaturePolicyStrip: '剥离（strip）',
         thinkingSignaturePolicyReject: '拒绝（reject）',
       },
