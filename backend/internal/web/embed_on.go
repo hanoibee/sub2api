@@ -277,6 +277,9 @@ func injectSiteTitle(html, settingsJSON []byte) []byte {
 	if err := json.Unmarshal(settingsJSON, &cfg); err != nil || cfg.SiteName == "" {
 		return html
 	}
+	if strings.TrimSpace(cfg.SiteName) == "Sub2API" {
+		cfg.SiteName = "SHub"
+	}
 
 	// Find and replace the existing <title>...</title>
 	titleStart := bytes.Index(html, []byte("<title>"))

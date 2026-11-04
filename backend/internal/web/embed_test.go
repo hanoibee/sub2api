@@ -24,6 +24,12 @@ func init() {
 }
 
 func TestInjectSiteTitle(t *testing.T) {
+	t.Run("rebrands_existing_default_site_name", func(t *testing.T) {
+		html := []byte(`<html><head><title>SHub - AI API Gateway</title></head><body></body></html>`)
+		result := injectSiteTitle(html, []byte(`{"site_name":"Sub2API"}`))
+		assert.Contains(t, string(result), "<title>SHub - AI API Gateway</title>")
+	})
+
 	t.Run("replaces_title_with_site_name", func(t *testing.T) {
 		html := []byte(`<html><head><title>Sub2API - AI API Gateway</title></head><body></body></html>`)
 		settingsJSON := []byte(`{"site_name":"MyCustomSite"}`)

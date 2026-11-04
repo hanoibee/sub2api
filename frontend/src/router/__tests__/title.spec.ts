@@ -21,8 +21,12 @@ describe('resolveDocumentTitle', () => {
   })
 
   it('站点名为空时，回退默认站点名', () => {
-    expect(resolveDocumentTitle('Dashboard', '')).toBe('Dashboard - Sub2API')
-    expect(resolveDocumentTitle(undefined, '   ')).toBe('Sub2API')
+    expect(resolveDocumentTitle('Dashboard', '')).toBe('Dashboard - SHub')
+    expect(resolveDocumentTitle(undefined, '   ')).toBe('SHub')
+  })
+
+  it('已有默认站点名也显示为 SHub', () => {
+    expect(resolveDocumentTitle('Dashboard', 'Sub2API')).toBe('Dashboard - SHub')
   })
 
   it('站点名变更时仅影响后续路由标题计算', () => {
