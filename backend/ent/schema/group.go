@@ -102,6 +102,8 @@ func (Group) Fields() []ent.Field {
 		field.Int("default_validity_days").
 			Default(30),
 
+		field.Bool("disable_claude_oauth_system_prompt_injection").Default(false),
+
 		// 图片生成计费配置（antigravity 和 gemini 平台使用）
 		field.Bool("allow_image_generation").
 			Default(false).

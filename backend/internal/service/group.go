@@ -41,6 +41,8 @@ type Group struct {
 	MonthlyLimitUSD     *float64
 	DefaultValidityDays int
 
+	DisableClaudeOAuthSystemPromptInjection bool
+
 	// 图片生成计费配置（antigravity 和 gemini 平台使用）
 	AllowImageGeneration         bool
 	AllowBatchImageGeneration    bool

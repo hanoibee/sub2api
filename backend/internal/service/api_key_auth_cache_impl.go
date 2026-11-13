@@ -14,7 +14,7 @@ import (
 	"github.com/dgraph-io/ristretto"
 )
 
-const apiKeyAuthSnapshotVersion = 27 // v27: group require_privacy_set (OpenAI scheduling reads it from ctx)
+const apiKeyAuthSnapshotVersion = 28 // v28: group Claude OAuth system prompt injection setting
 
 type apiKeyAuthCacheConfig struct {
 	l1Size        int
@@ -380,6 +380,8 @@ func (s *APIKeyService) snapshotFromAPIKey(ctx context.Context, apiKey *APIKey) 
 	}
 	if apiKey.Group != nil {
 		snapshot.Group = &APIKeyAuthGroupSnapshot{
+			DisableClaudeOAuthSystemPromptInjection: apiKey.Group.DisableClaudeOAuthSystemPromptInjection,
+
 			ID:                              apiKey.Group.ID,
 			Name:                            apiKey.Group.Name,
 			Platform:                        apiKey.Group.Platform,
@@ -484,6 +486,8 @@ func (s *APIKeyService) snapshotToAPIKey(key string, snapshot *APIKeyAuthSnapsho
 	}
 	if snapshot.Group != nil {
 		apiKey.Group = &Group{
+			DisableClaudeOAuthSystemPromptInjection: snapshot.Group.DisableClaudeOAuthSystemPromptInjection,
+
 			ID:                              snapshot.Group.ID,
 			Name:                            snapshot.Group.Name,
 			Platform:                        snapshot.Group.Platform,

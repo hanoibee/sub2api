@@ -392,10 +392,10 @@ func setGroupContext(c *gin.Context, group *service.Group) {
 	if !service.IsGroupContextValid(group) {
 		return
 	}
-	if existing, ok := c.Request.Context().Value(ctxkey.Group).(*service.Group); ok && existing != nil && existing.ID == group.ID && service.IsGroupContextValid(existing) {
-		return
+	ctx := context.WithValue(c.Request.Context(), ctxkey.AuthenticatedGroup, group)
+	if existing, ok := ctx.Value(ctxkey.Group).(*service.Group); !ok || !service.IsGroupContextValid(existing) || existing.ID != group.ID {
+		ctx = context.WithValue(ctx, ctxkey.Group, group)
 	}
-	ctx := context.WithValue(c.Request.Context(), ctxkey.Group, group)
 	c.Request = c.Request.WithContext(ctx)
 }
 

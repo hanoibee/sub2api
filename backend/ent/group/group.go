@@ -56,6 +56,8 @@ const (
 	FieldMonthlyLimitUsd = "monthly_limit_usd"
 	// FieldDefaultValidityDays holds the string denoting the default_validity_days field in the database.
 	FieldDefaultValidityDays = "default_validity_days"
+	// FieldDisableClaudeOauthSystemPromptInjection holds the string denoting the disable_claude_oauth_system_prompt_injection field in the database.
+	FieldDisableClaudeOauthSystemPromptInjection = "disable_claude_oauth_system_prompt_injection"
 	// FieldAllowImageGeneration holds the string denoting the allow_image_generation field in the database.
 	FieldAllowImageGeneration = "allow_image_generation"
 	// FieldAllowBatchImageGeneration holds the string denoting the allow_batch_image_generation field in the database.
@@ -247,6 +249,7 @@ var Columns = []string{
 	FieldWeeklyLimitUsd,
 	FieldMonthlyLimitUsd,
 	FieldDefaultValidityDays,
+	FieldDisableClaudeOauthSystemPromptInjection,
 	FieldAllowImageGeneration,
 	FieldAllowBatchImageGeneration,
 	FieldImageCountBilling,
@@ -366,6 +369,8 @@ var (
 	SubscriptionTypeValidator func(string) error
 	// DefaultDefaultValidityDays holds the default value on creation for the "default_validity_days" field.
 	DefaultDefaultValidityDays int
+	// DefaultDisableClaudeOauthSystemPromptInjection holds the default value on creation for the "disable_claude_oauth_system_prompt_injection" field.
+	DefaultDisableClaudeOauthSystemPromptInjection bool
 	// DefaultAllowImageGeneration holds the default value on creation for the "allow_image_generation" field.
 	DefaultAllowImageGeneration bool
 	// DefaultAllowBatchImageGeneration holds the default value on creation for the "allow_batch_image_generation" field.
@@ -547,6 +552,11 @@ func ByMonthlyLimitUsd(opts ...sql.OrderTermOption) OrderOption {
 // ByDefaultValidityDays orders the results by the default_validity_days field.
 func ByDefaultValidityDays(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDefaultValidityDays, opts...).ToFunc()
+}
+
+// ByDisableClaudeOauthSystemPromptInjection orders the results by the disable_claude_oauth_system_prompt_injection field.
+func ByDisableClaudeOauthSystemPromptInjection(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDisableClaudeOauthSystemPromptInjection, opts...).ToFunc()
 }
 
 // ByAllowImageGeneration orders the results by the allow_image_generation field.

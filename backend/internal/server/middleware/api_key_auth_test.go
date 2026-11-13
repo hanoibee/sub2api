@@ -338,11 +338,12 @@ func TestAPIKeyAuthSetsGroupContext(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	group := &service.Group{
-		ID:       101,
-		Name:     "g1",
-		Status:   service.StatusActive,
-		Platform: service.PlatformAnthropic,
-		Hydrated: true,
+		ID:                                      101,
+		Name:                                    "g1",
+		Status:                                  service.StatusActive,
+		Platform:                                service.PlatformAnthropic,
+		Hydrated:                                true,
+		DisableClaudeOAuthSystemPromptInjection: true,
 	}
 	user := &service.User{
 		ID:          7,
@@ -378,6 +379,11 @@ func TestAPIKeyAuthSetsGroupContext(t *testing.T) {
 	router.GET("/t", func(c *gin.Context) {
 		groupFromCtx, ok := c.Request.Context().Value(ctxkey.Group).(*service.Group)
 		if !ok || groupFromCtx == nil || groupFromCtx.ID != group.ID {
+			c.JSON(http.StatusInternalServerError, gin.H{"ok": false})
+			return
+		}
+		authGroup, ok := c.Request.Context().Value(ctxkey.AuthenticatedGroup).(*service.Group)
+		if !ok || authGroup == nil || authGroup.ID != group.ID || !authGroup.DisableClaudeOAuthSystemPromptInjection {
 			c.JSON(http.StatusInternalServerError, gin.H{"ok": false})
 			return
 		}

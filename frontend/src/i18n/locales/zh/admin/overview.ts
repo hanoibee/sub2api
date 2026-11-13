@@ -1237,6 +1237,10 @@ export default {
         fallbackHint: '非 Claude Code 请求将使用此分组，留空则直接拒绝',
         noFallback: '不降级（直接拒绝）'
       },
+      claudeOAuthSystemPromptInjection: {
+        title: 'Claude OAuth 系统提示词注入',
+        hint: '全局开关开启时，本组允许对符合条件的 Claude OAuth 请求注入系统提示词。关闭后，使用本组 API Key 的请求跳过注入及原系统提示词迁移。'
+      },
       thinkingSignature: {
         title: '非法 thinking.signature 策略',
         hint: '仅影响 Anthropic-strict 模型。跟随全局使用系统设置；strip 剥离缺失签名的块后继续，非空签名原样转发；reject 对缺失或含非法字符的签名直接 400（验签验收用，仅格式检查，不验真伪）。',

@@ -184,6 +184,7 @@ func (r *apiKeyRepository) GetByKeyForAuth(ctx context.Context, key string) (*se
 				group.FieldAllowImageGeneration,
 				group.FieldAllowBatchImageGeneration,
 				group.FieldImageCountBilling,
+				group.FieldDisableClaudeOauthSystemPromptInjection,
 				group.FieldImageRateIndependent,
 				group.FieldImageRateMultiplier,
 				group.FieldImagePrice1k,
@@ -979,6 +980,8 @@ func groupEntityToService(g *dbent.Group) *service.Group {
 		}
 	}
 	return &service.Group{
+		DisableClaudeOAuthSystemPromptInjection: g.DisableClaudeOauthSystemPromptInjection,
+
 		ID:                              g.ID,
 		Name:                            g.Name,
 		Description:                     derefString(g.Description),

@@ -22078,129 +22078,130 @@ func (m *ErrorPassthroughRuleMutation) ResetEdge(name string) error {
 // GroupMutation represents an operation that mutates the Group nodes in the graph.
 type GroupMutation struct {
 	config
-	op                                      Op
-	typ                                     string
-	id                                      *int64
-	created_at                              *time.Time
-	updated_at                              *time.Time
-	deleted_at                              *time.Time
-	name                                    *string
-	description                             *string
-	i18n                                    *domain.GroupI18n
-	rate_multiplier                         *float64
-	addrate_multiplier                      *float64
-	peak_rate_enabled                       *bool
-	peak_start                              *string
-	peak_end                                *string
-	peak_rate_multiplier                    *float64
-	addpeak_rate_multiplier                 *float64
-	is_exclusive                            *bool
-	status                                  *string
-	duplicate_operation_id                  *string
-	platform                                *string
-	subscription_type                       *string
-	daily_limit_usd                         *float64
-	adddaily_limit_usd                      *float64
-	weekly_limit_usd                        *float64
-	addweekly_limit_usd                     *float64
-	monthly_limit_usd                       *float64
-	addmonthly_limit_usd                    *float64
-	default_validity_days                   *int
-	adddefault_validity_days                *int
-	allow_image_generation                  *bool
-	allow_batch_image_generation            *bool
-	image_count_billing                     *bool
-	image_rate_independent                  *bool
-	image_rate_multiplier                   *float64
-	addimage_rate_multiplier                *float64
-	image_price_1k                          *float64
-	addimage_price_1k                       *float64
-	image_price_2k                          *float64
-	addimage_price_2k                       *float64
-	image_price_4k                          *float64
-	addimage_price_4k                       *float64
-	batch_image_discount_multiplier         *float64
-	addbatch_image_discount_multiplier      *float64
-	batch_image_hold_multiplier             *float64
-	addbatch_image_hold_multiplier          *float64
-	video_rate_independent                  *bool
-	video_rate_multiplier                   *float64
-	addvideo_rate_multiplier                *float64
-	video_price_480p                        *float64
-	addvideo_price_480p                     *float64
-	video_price_720p                        *float64
-	addvideo_price_720p                     *float64
-	video_price_1080p                       *float64
-	addvideo_price_1080p                    *float64
-	video_model_prices                      *map[string]map[string]float64
-	web_search_price_per_call               *float64
-	addweb_search_price_per_call            *float64
-	search_price_per_1k                     *float64
-	addsearch_price_per_1k                  *float64
-	audio_realtime_price_per_min            *float64
-	addaudio_realtime_price_per_min         *float64
-	audio_tts_price_per_million_chars       *float64
-	addaudio_tts_price_per_million_chars    *float64
-	audio_stt_price_per_hour                *float64
-	addaudio_stt_price_per_hour             *float64
-	long_context_pricing_enabled            *bool
-	model_pricing                           *jsontext.Value
-	appendmodel_pricing                     jsontext.Value
-	claude_code_only                        *bool
-	fallback_group_id                       *int64
-	addfallback_group_id                    *int64
-	fallback_group_id_on_invalid_request    *int64
-	addfallback_group_id_on_invalid_request *int64
-	model_routing                           *map[string][]int64
-	model_routing_enabled                   *bool
-	mcp_xml_inject                          *bool
-	supported_model_scopes                  *[]string
-	appendsupported_model_scopes            []string
-	sort_order                              *int
-	addsort_order                           *int
-	allow_messages_dispatch                 *bool
-	allow_live                              *bool
-	force_openai_fast                       *bool
-	free_openai_fast                        *bool
-	require_oauth_only                      *bool
-	require_privacy_set                     *bool
-	default_mapped_model                    *string
-	messages_dispatch_model_config          *domain.OpenAIMessagesDispatchModelConfig
-	model_allowlist                         *domain.GroupModelAllowlist
-	codex_models_manifest_config            *domain.GroupCodexModelsManifestConfig
-	rpm_limit                               *int
-	addrpm_limit                            *int
-	max_reasoning_effort                    *string
-	max_reasoning_effort_over_limit         *string
-	reasoning_effort_mappings               *[]domain.ReasoningEffortMapping
-	appendreasoning_effort_mappings         []domain.ReasoningEffortMapping
-	profit_control_enabled                  *bool
-	profit_min_margin                       *float64
-	addprofit_min_margin                    *float64
-	profit_safety_buffer                    *float64
-	addprofit_safety_buffer                 *float64
-	clearedFields                           map[string]struct{}
-	api_keys                                map[int64]struct{}
-	removedapi_keys                         map[int64]struct{}
-	clearedapi_keys                         bool
-	redeem_codes                            map[int64]struct{}
-	removedredeem_codes                     map[int64]struct{}
-	clearedredeem_codes                     bool
-	subscriptions                           map[int64]struct{}
-	removedsubscriptions                    map[int64]struct{}
-	clearedsubscriptions                    bool
-	usage_logs                              map[int64]struct{}
-	removedusage_logs                       map[int64]struct{}
-	clearedusage_logs                       bool
-	accounts                                map[int64]struct{}
-	removedaccounts                         map[int64]struct{}
-	clearedaccounts                         bool
-	allowed_users                           map[int64]struct{}
-	removedallowed_users                    map[int64]struct{}
-	clearedallowed_users                    bool
-	done                                    bool
-	oldValue                                func(context.Context) (*Group, error)
-	predicates                              []predicate.Group
+	op                                           Op
+	typ                                          string
+	id                                           *int64
+	created_at                                   *time.Time
+	updated_at                                   *time.Time
+	deleted_at                                   *time.Time
+	name                                         *string
+	description                                  *string
+	i18n                                         *domain.GroupI18n
+	rate_multiplier                              *float64
+	addrate_multiplier                           *float64
+	peak_rate_enabled                            *bool
+	peak_start                                   *string
+	peak_end                                     *string
+	peak_rate_multiplier                         *float64
+	addpeak_rate_multiplier                      *float64
+	is_exclusive                                 *bool
+	status                                       *string
+	duplicate_operation_id                       *string
+	platform                                     *string
+	subscription_type                            *string
+	daily_limit_usd                              *float64
+	adddaily_limit_usd                           *float64
+	weekly_limit_usd                             *float64
+	addweekly_limit_usd                          *float64
+	monthly_limit_usd                            *float64
+	addmonthly_limit_usd                         *float64
+	default_validity_days                        *int
+	adddefault_validity_days                     *int
+	disable_claude_oauth_system_prompt_injection *bool
+	allow_image_generation                       *bool
+	allow_batch_image_generation                 *bool
+	image_count_billing                          *bool
+	image_rate_independent                       *bool
+	image_rate_multiplier                        *float64
+	addimage_rate_multiplier                     *float64
+	image_price_1k                               *float64
+	addimage_price_1k                            *float64
+	image_price_2k                               *float64
+	addimage_price_2k                            *float64
+	image_price_4k                               *float64
+	addimage_price_4k                            *float64
+	batch_image_discount_multiplier              *float64
+	addbatch_image_discount_multiplier           *float64
+	batch_image_hold_multiplier                  *float64
+	addbatch_image_hold_multiplier               *float64
+	video_rate_independent                       *bool
+	video_rate_multiplier                        *float64
+	addvideo_rate_multiplier                     *float64
+	video_price_480p                             *float64
+	addvideo_price_480p                          *float64
+	video_price_720p                             *float64
+	addvideo_price_720p                          *float64
+	video_price_1080p                            *float64
+	addvideo_price_1080p                         *float64
+	video_model_prices                           *map[string]map[string]float64
+	web_search_price_per_call                    *float64
+	addweb_search_price_per_call                 *float64
+	search_price_per_1k                          *float64
+	addsearch_price_per_1k                       *float64
+	audio_realtime_price_per_min                 *float64
+	addaudio_realtime_price_per_min              *float64
+	audio_tts_price_per_million_chars            *float64
+	addaudio_tts_price_per_million_chars         *float64
+	audio_stt_price_per_hour                     *float64
+	addaudio_stt_price_per_hour                  *float64
+	long_context_pricing_enabled                 *bool
+	model_pricing                                *jsontext.Value
+	appendmodel_pricing                          jsontext.Value
+	claude_code_only                             *bool
+	fallback_group_id                            *int64
+	addfallback_group_id                         *int64
+	fallback_group_id_on_invalid_request         *int64
+	addfallback_group_id_on_invalid_request      *int64
+	model_routing                                *map[string][]int64
+	model_routing_enabled                        *bool
+	mcp_xml_inject                               *bool
+	supported_model_scopes                       *[]string
+	appendsupported_model_scopes                 []string
+	sort_order                                   *int
+	addsort_order                                *int
+	allow_messages_dispatch                      *bool
+	allow_live                                   *bool
+	force_openai_fast                            *bool
+	free_openai_fast                             *bool
+	require_oauth_only                           *bool
+	require_privacy_set                          *bool
+	default_mapped_model                         *string
+	messages_dispatch_model_config               *domain.OpenAIMessagesDispatchModelConfig
+	model_allowlist                              *domain.GroupModelAllowlist
+	codex_models_manifest_config                 *domain.GroupCodexModelsManifestConfig
+	rpm_limit                                    *int
+	addrpm_limit                                 *int
+	max_reasoning_effort                         *string
+	max_reasoning_effort_over_limit              *string
+	reasoning_effort_mappings                    *[]domain.ReasoningEffortMapping
+	appendreasoning_effort_mappings              []domain.ReasoningEffortMapping
+	profit_control_enabled                       *bool
+	profit_min_margin                            *float64
+	addprofit_min_margin                         *float64
+	profit_safety_buffer                         *float64
+	addprofit_safety_buffer                      *float64
+	clearedFields                                map[string]struct{}
+	api_keys                                     map[int64]struct{}
+	removedapi_keys                              map[int64]struct{}
+	clearedapi_keys                              bool
+	redeem_codes                                 map[int64]struct{}
+	removedredeem_codes                          map[int64]struct{}
+	clearedredeem_codes                          bool
+	subscriptions                                map[int64]struct{}
+	removedsubscriptions                         map[int64]struct{}
+	clearedsubscriptions                         bool
+	usage_logs                                   map[int64]struct{}
+	removedusage_logs                            map[int64]struct{}
+	clearedusage_logs                            bool
+	accounts                                     map[int64]struct{}
+	removedaccounts                              map[int64]struct{}
+	clearedaccounts                              bool
+	allowed_users                                map[int64]struct{}
+	removedallowed_users                         map[int64]struct{}
+	clearedallowed_users                         bool
+	done                                         bool
+	oldValue                                     func(context.Context) (*Group, error)
+	predicates                                   []predicate.Group
 }
 
 var _ ent.Mutation = (*GroupMutation)(nil)
@@ -23220,6 +23221,42 @@ func (m *GroupMutation) AddedDefaultValidityDays() (r int, exists bool) {
 func (m *GroupMutation) ResetDefaultValidityDays() {
 	m.default_validity_days = nil
 	m.adddefault_validity_days = nil
+}
+
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (m *GroupMutation) SetDisableClaudeOauthSystemPromptInjection(b bool) {
+	m.disable_claude_oauth_system_prompt_injection = &b
+}
+
+// DisableClaudeOauthSystemPromptInjection returns the value of the "disable_claude_oauth_system_prompt_injection" field in the mutation.
+func (m *GroupMutation) DisableClaudeOauthSystemPromptInjection() (r bool, exists bool) {
+	v := m.disable_claude_oauth_system_prompt_injection
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDisableClaudeOauthSystemPromptInjection returns the old "disable_claude_oauth_system_prompt_injection" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldDisableClaudeOauthSystemPromptInjection(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDisableClaudeOauthSystemPromptInjection is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDisableClaudeOauthSystemPromptInjection requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDisableClaudeOauthSystemPromptInjection: %w", err)
+	}
+	return oldValue.DisableClaudeOauthSystemPromptInjection, nil
+}
+
+// ResetDisableClaudeOauthSystemPromptInjection resets all changes to the "disable_claude_oauth_system_prompt_injection" field.
+func (m *GroupMutation) ResetDisableClaudeOauthSystemPromptInjection() {
+	m.disable_claude_oauth_system_prompt_injection = nil
 }
 
 // SetAllowImageGeneration sets the "allow_image_generation" field.
@@ -25995,7 +26032,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 68)
+	fields := make([]string, 0, 69)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -26055,6 +26092,9 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.default_validity_days != nil {
 		fields = append(fields, group.FieldDefaultValidityDays)
+	}
+	if m.disable_claude_oauth_system_prompt_injection != nil {
+		fields = append(fields, group.FieldDisableClaudeOauthSystemPromptInjection)
 	}
 	if m.allow_image_generation != nil {
 		fields = append(fields, group.FieldAllowImageGeneration)
@@ -26248,6 +26288,8 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.MonthlyLimitUsd()
 	case group.FieldDefaultValidityDays:
 		return m.DefaultValidityDays()
+	case group.FieldDisableClaudeOauthSystemPromptInjection:
+		return m.DisableClaudeOauthSystemPromptInjection()
 	case group.FieldAllowImageGeneration:
 		return m.AllowImageGeneration()
 	case group.FieldAllowBatchImageGeneration:
@@ -26393,6 +26435,8 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldMonthlyLimitUsd(ctx)
 	case group.FieldDefaultValidityDays:
 		return m.OldDefaultValidityDays(ctx)
+	case group.FieldDisableClaudeOauthSystemPromptInjection:
+		return m.OldDisableClaudeOauthSystemPromptInjection(ctx)
 	case group.FieldAllowImageGeneration:
 		return m.OldAllowImageGeneration(ctx)
 	case group.FieldAllowBatchImageGeneration:
@@ -26637,6 +26681,13 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDefaultValidityDays(v)
+		return nil
+	case group.FieldDisableClaudeOauthSystemPromptInjection:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDisableClaudeOauthSystemPromptInjection(v)
 		return nil
 	case group.FieldAllowImageGeneration:
 		v, ok := value.(bool)
@@ -27544,6 +27595,9 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldDefaultValidityDays:
 		m.ResetDefaultValidityDays()
+		return nil
+	case group.FieldDisableClaudeOauthSystemPromptInjection:
+		m.ResetDisableClaudeOauthSystemPromptInjection()
 		return nil
 	case group.FieldAllowImageGeneration:
 		m.ResetAllowImageGeneration()

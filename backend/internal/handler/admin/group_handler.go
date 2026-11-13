@@ -197,6 +197,9 @@ type CreateGroupRequest struct {
 	MonthlyLimitUSD           optionalLimitField            `json:"monthly_limit_usd"`
 	LongContextPricingEnabled bool                          `json:"long_context_pricing_enabled"`
 	ModelPricing              []service.ChannelModelPricing `json:"model_pricing"`
+
+	EnableClaudeOAuthSystemPromptInjection *bool `json:"enable_claude_oauth_system_prompt_injection"`
+
 	// 图片生成计费配置（antigravity 和 gemini 平台使用，负数表示清除配置）
 	AllowImageGeneration            bool                          `json:"allow_image_generation"`
 	AllowBatchImageGeneration       bool                          `json:"allow_batch_image_generation"`
@@ -277,6 +280,9 @@ type UpdateGroupRequest struct {
 	MonthlyLimitUSD           optionalLimitField             `json:"monthly_limit_usd"`
 	LongContextPricingEnabled *bool                          `json:"long_context_pricing_enabled"`
 	ModelPricing              *[]service.ChannelModelPricing `json:"model_pricing"`
+
+	EnableClaudeOAuthSystemPromptInjection *bool `json:"enable_claude_oauth_system_prompt_injection"`
+
 	// 图片生成计费配置（antigravity 和 gemini 平台使用，负数表示清除配置）
 	AllowImageGeneration            *bool                         `json:"allow_image_generation"`
 	AllowBatchImageGeneration       *bool                         `json:"allow_batch_image_generation"`
@@ -675,6 +681,8 @@ func (h *GroupHandler) Create(c *gin.Context) {
 	}
 
 	group, err := h.adminService.CreateGroup(c.Request.Context(), &service.CreateGroupInput{
+		EnableClaudeOAuthSystemPromptInjection: req.EnableClaudeOAuthSystemPromptInjection,
+
 		Name:                            req.Name,
 		Description:                     req.Description,
 		I18n:                            req.I18n,
@@ -824,6 +832,8 @@ func (h *GroupHandler) Update(c *gin.Context) {
 	}
 
 	group, err := h.adminService.UpdateGroup(c.Request.Context(), groupID, &service.UpdateGroupInput{
+		EnableClaudeOAuthSystemPromptInjection: req.EnableClaudeOAuthSystemPromptInjection,
+
 		Name:                            req.Name,
 		Description:                     req.Description,
 		I18n:                            req.I18n,

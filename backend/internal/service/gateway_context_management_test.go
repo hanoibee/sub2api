@@ -13,6 +13,7 @@ import (
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/claude"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/ctxkey"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
@@ -404,6 +405,21 @@ func TestApplyClaudeCodeOAuthMimicryToBody_HaikuRewritesSystem(t *testing.T) {
 	require.Contains(t, system[0].Get("text").String(), "x-anthropic-billing-header:")
 	require.Equal(t, claudeCodeSystemPrompt, system[1].Get("text").String())
 	require.Contains(t, gjson.GetBytes(out, "messages.0.content.0.text").String(), "Pi project instructions")
+	require.Equal(t, "claude-haiku-4-5-20251001", gjson.GetBytes(out, "model").String())
+}
+
+func TestApplyClaudeCodeOAuthMimicryToBody_RespectsAuthenticatedGroup(t *testing.T) {
+	account := &Account{ID: 405, Platform: PlatformAnthropic, Type: AccountTypeOAuth}
+	body := []byte(`{"model":"claude-haiku-4-5","system":"Project instructions","messages":[{"role":"user","content":"hello"}]}`)
+	svc := &GatewayService{cfg: &config.Config{}}
+	ctx := context.WithValue(context.Background(), ctxkey.AuthenticatedGroup, &Group{
+		ID: 1, DisableClaudeOAuthSystemPromptInjection: true,
+	})
+
+	out := svc.applyClaudeCodeOAuthMimicryToBody(ctx, nil, account, body, "Project instructions", "claude-haiku-4-5")
+
+	require.Equal(t, "Project instructions", gjson.GetBytes(out, "system").String())
+	require.JSONEq(t, gjson.GetBytes(body, "messages").Raw, gjson.GetBytes(out, "messages").Raw)
 	require.Equal(t, "claude-haiku-4-5-20251001", gjson.GetBytes(out, "model").String())
 }
 

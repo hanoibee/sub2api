@@ -1239,6 +1239,10 @@ export default {
         fallbackHint: 'Non-Claude Code requests will use this group. Leave empty to reject directly.',
         noFallback: 'No Fallback (Reject)'
       },
+      claudeOAuthSystemPromptInjection: {
+        title: 'Claude OAuth system prompt injection',
+        hint: 'When enabled globally, inject system prompts into eligible Claude OAuth requests. Turning this off skips injection and original system prompt migration for requests using this group’s API keys.'
+      },
       thinkingSignature: {
         title: 'Invalid thinking.signature policy',
         hint: 'Applies to Anthropic-strict models only. Inherit uses the system setting; strip drops blocks with missing signatures and forwards non-empty ones as-is; reject returns 400 for missing or malformed signatures (format check only, not authenticity; for signature acceptance tests).',

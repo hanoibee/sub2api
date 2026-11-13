@@ -179,6 +179,8 @@ func GroupFromServiceAdmin(g *service.Group) *AdminGroup {
 
 func groupFromServiceBase(g *service.Group) Group {
 	return Group{
+		EnableClaudeOAuthSystemPromptInjection: !g.DisableClaudeOAuthSystemPromptInjection,
+
 		ID:                              g.ID,
 		Name:                            g.Name,
 		Description:                     g.Description,

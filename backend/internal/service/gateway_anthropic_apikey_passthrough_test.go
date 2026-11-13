@@ -15,6 +15,7 @@ import (
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/claude"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/ctxkey"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/tlsfingerprint"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
@@ -1018,6 +1019,22 @@ func TestGatewayService_AnthropicOAuthRealClaudeCodeHaiku_PreservesClientHeaders
 
 func TestGatewayService_AnthropicOAuth_SystemPromptInjectionCanBeDisabled(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+	for _, tc := range []struct {
+		name          string
+		globalEnabled string
+		groupDisabled bool
+	}{
+		{name: "global off", globalEnabled: "false"},
+		{name: "authenticated group off", globalEnabled: "true", groupDisabled: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testAnthropicOAuthSystemPromptInjectionDisabled(t, tc.globalEnabled, tc.groupDisabled)
+		})
+	}
+}
+
+func testAnthropicOAuthSystemPromptInjectionDisabled(t *testing.T, globalEnabled string, groupDisabled bool) {
+	t.Helper()
 	resetGatewayForwardingSettingsCacheForTest(t)
 
 	rec := httptest.NewRecorder()
@@ -1045,7 +1062,7 @@ func TestGatewayService_AnthropicOAuth_SystemPromptInjectionCanBeDisabled(t *tes
 		},
 	}
 	settingService := NewSettingService(&gatewayTTLSettingRepo{data: map[string]string{
-		SettingKeyEnableClaudeOAuthSystemPromptInjection: "false",
+		SettingKeyEnableClaudeOAuthSystemPromptInjection: globalEnabled,
 	}}, cfg)
 	svc := &GatewayService{
 		cfg:                  cfg,
@@ -1069,7 +1086,12 @@ func TestGatewayService_AnthropicOAuth_SystemPromptInjectionCanBeDisabled(t *tes
 		Schedulable: true,
 	}
 
-	result, err := svc.Forward(context.Background(), c, account, parsed)
+	// Fallback routing may put a different group in the routing context.
+	ctx := context.WithValue(c.Request.Context(), ctxkey.Group, &Group{ID: 2})
+	ctx = context.WithValue(ctx, ctxkey.AuthenticatedGroup, &Group{ID: 1, DisableClaudeOAuthSystemPromptInjection: groupDisabled})
+	c.Request = c.Request.WithContext(ctx)
+
+	result, err := svc.Forward(ctx, c, account, parsed)
 	require.NoError(t, err)
 	require.NotNil(t, result)
 

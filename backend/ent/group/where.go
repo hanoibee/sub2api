@@ -150,6 +150,11 @@ func DefaultValidityDays(v int) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldDefaultValidityDays, v))
 }
 
+// DisableClaudeOauthSystemPromptInjection applies equality check predicate on the "disable_claude_oauth_system_prompt_injection" field. It's identical to DisableClaudeOauthSystemPromptInjectionEQ.
+func DisableClaudeOauthSystemPromptInjection(v bool) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldDisableClaudeOauthSystemPromptInjection, v))
+}
+
 // AllowImageGeneration applies equality check predicate on the "allow_image_generation" field. It's identical to AllowImageGenerationEQ.
 func AllowImageGeneration(v bool) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldAllowImageGeneration, v))
@@ -1308,6 +1313,16 @@ func DefaultValidityDaysLT(v int) predicate.Group {
 // DefaultValidityDaysLTE applies the LTE predicate on the "default_validity_days" field.
 func DefaultValidityDaysLTE(v int) predicate.Group {
 	return predicate.Group(sql.FieldLTE(FieldDefaultValidityDays, v))
+}
+
+// DisableClaudeOauthSystemPromptInjectionEQ applies the EQ predicate on the "disable_claude_oauth_system_prompt_injection" field.
+func DisableClaudeOauthSystemPromptInjectionEQ(v bool) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldDisableClaudeOauthSystemPromptInjection, v))
+}
+
+// DisableClaudeOauthSystemPromptInjectionNEQ applies the NEQ predicate on the "disable_claude_oauth_system_prompt_injection" field.
+func DisableClaudeOauthSystemPromptInjectionNEQ(v bool) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldDisableClaudeOauthSystemPromptInjection, v))
 }
 
 // AllowImageGenerationEQ applies the EQ predicate on the "allow_image_generation" field.

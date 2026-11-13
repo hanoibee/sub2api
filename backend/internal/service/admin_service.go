@@ -249,6 +249,9 @@ type CreateGroupInput struct {
 	MonthlyLimitUSD           *float64 // 月限额 (USD)
 	LongContextPricingEnabled bool
 	ModelPricing              []ChannelModelPricing
+
+	EnableClaudeOAuthSystemPromptInjection *bool
+
 	// 图片生成计费配置（仅 antigravity 平台使用）
 	AllowImageGeneration         bool
 	AllowBatchImageGeneration    bool
@@ -335,6 +338,9 @@ type UpdateGroupInput struct {
 	MonthlyLimitUSD           *float64 // 月限额 (USD)
 	LongContextPricingEnabled *bool
 	ModelPricing              *[]ChannelModelPricing
+
+	EnableClaudeOAuthSystemPromptInjection *bool
+
 	// 图片生成计费配置（仅 antigravity 平台使用）
 	AllowImageGeneration         *bool
 	AllowBatchImageGeneration    *bool

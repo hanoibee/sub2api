@@ -60,6 +60,8 @@ type APIKeyAuthUserSnapshot struct {
 
 // APIKeyAuthGroupSnapshot 分组快照
 type APIKeyAuthGroupSnapshot struct {
+	DisableClaudeOAuthSystemPromptInjection bool `json:"disable_claude_oauth_system_prompt_injection,omitempty"`
+
 	ID                              int64                         `json:"id"`
 	Name                            string                        `json:"name"`
 	Platform                        string                        `json:"platform"`

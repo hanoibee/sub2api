@@ -582,6 +582,8 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 	}
 
 	group := &Group{
+		DisableClaudeOAuthSystemPromptInjection: input.EnableClaudeOAuthSystemPromptInjection != nil && !*input.EnableClaudeOAuthSystemPromptInjection,
+
 		Name:                            input.Name,
 		Description:                     input.Description,
 		I18n:                            i18n,
@@ -1098,6 +1100,10 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 		if err := s.validateCodexModelsManifestConfig(ctx, id, group.CodexModelsManifestConfig); err != nil {
 			return nil, err
 		}
+	}
+
+	if input.EnableClaudeOAuthSystemPromptInjection != nil {
+		group.DisableClaudeOAuthSystemPromptInjection = !*input.EnableClaudeOAuthSystemPromptInjection
 	}
 
 	if err := s.groupRepo.Update(ctx, group); err != nil {

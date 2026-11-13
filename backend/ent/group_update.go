@@ -345,6 +345,20 @@ func (_u *GroupUpdate) AddDefaultValidityDays(v int) *GroupUpdate {
 	return _u
 }
 
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (_u *GroupUpdate) SetDisableClaudeOauthSystemPromptInjection(v bool) *GroupUpdate {
+	_u.mutation.SetDisableClaudeOauthSystemPromptInjection(v)
+	return _u
+}
+
+// SetNillableDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableDisableClaudeOauthSystemPromptInjection(v *bool) *GroupUpdate {
+	if v != nil {
+		_u.SetDisableClaudeOauthSystemPromptInjection(*v)
+	}
+	return _u
+}
+
 // SetAllowImageGeneration sets the "allow_image_generation" field.
 func (_u *GroupUpdate) SetAllowImageGeneration(v bool) *GroupUpdate {
 	_u.mutation.SetAllowImageGeneration(v)
@@ -1673,6 +1687,9 @@ func (_u *GroupUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedDefaultValidityDays(); ok {
 		_spec.AddField(group.FieldDefaultValidityDays, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.DisableClaudeOauthSystemPromptInjection(); ok {
+		_spec.SetField(group.FieldDisableClaudeOauthSystemPromptInjection, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.AllowImageGeneration(); ok {
 		_spec.SetField(group.FieldAllowImageGeneration, field.TypeBool, value)
 	}
@@ -2562,6 +2579,20 @@ func (_u *GroupUpdateOne) SetNillableDefaultValidityDays(v *int) *GroupUpdateOne
 // AddDefaultValidityDays adds value to the "default_validity_days" field.
 func (_u *GroupUpdateOne) AddDefaultValidityDays(v int) *GroupUpdateOne {
 	_u.mutation.AddDefaultValidityDays(v)
+	return _u
+}
+
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (_u *GroupUpdateOne) SetDisableClaudeOauthSystemPromptInjection(v bool) *GroupUpdateOne {
+	_u.mutation.SetDisableClaudeOauthSystemPromptInjection(v)
+	return _u
+}
+
+// SetNillableDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableDisableClaudeOauthSystemPromptInjection(v *bool) *GroupUpdateOne {
+	if v != nil {
+		_u.SetDisableClaudeOauthSystemPromptInjection(*v)
+	}
 	return _u
 }
 
@@ -3922,6 +3953,9 @@ func (_u *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error)
 	}
 	if value, ok := _u.mutation.AddedDefaultValidityDays(); ok {
 		_spec.AddField(group.FieldDefaultValidityDays, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.DisableClaudeOauthSystemPromptInjection(); ok {
+		_spec.SetField(group.FieldDisableClaudeOauthSystemPromptInjection, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.AllowImageGeneration(); ok {
 		_spec.SetField(group.FieldAllowImageGeneration, field.TypeBool, value)

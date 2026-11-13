@@ -551,7 +551,7 @@ export default {
         cchSigning: 'CCH 签名',
         cchSigningHint: '对转发请求的 billing header 进行 CCH 哈希签名。关闭时保留原始占位符。',
         claudeOAuthSystemPromptInjection: 'Claude OAuth System 注入',
-        claudeOAuthSystemPromptInjectionHint: '为非 Claude Code 客户端的 Claude OAuth 请求注入 Claude Code 形态的 system blocks。默认开启。',
+        claudeOAuthSystemPromptInjectionHint: '为非 Claude Code 客户端的 Claude OAuth 请求注入 Claude Code 形态的 system blocks。默认开启。符合条件的请求还需其 API Key 所属分组开启注入。',
         claudeOAuthSystemPrompt: 'Claude OAuth 扩展提示词',
         claudeOAuthSystemPromptPlaceholder: '留空时使用内置 Claude Code 扩展提示词。',
         claudeOAuthSystemPromptHint: '兼容旧配置：仅控制第三个注入的 system block。',

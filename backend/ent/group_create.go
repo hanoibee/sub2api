@@ -294,6 +294,20 @@ func (_c *GroupCreate) SetNillableDefaultValidityDays(v *int) *GroupCreate {
 	return _c
 }
 
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (_c *GroupCreate) SetDisableClaudeOauthSystemPromptInjection(v bool) *GroupCreate {
+	_c.mutation.SetDisableClaudeOauthSystemPromptInjection(v)
+	return _c
+}
+
+// SetNillableDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field if the given value is not nil.
+func (_c *GroupCreate) SetNillableDisableClaudeOauthSystemPromptInjection(v *bool) *GroupCreate {
+	if v != nil {
+		_c.SetDisableClaudeOauthSystemPromptInjection(*v)
+	}
+	return _c
+}
+
 // SetAllowImageGeneration sets the "allow_image_generation" field.
 func (_c *GroupCreate) SetAllowImageGeneration(v bool) *GroupCreate {
 	_c.mutation.SetAllowImageGeneration(v)
@@ -1111,6 +1125,10 @@ func (_c *GroupCreate) defaults() error {
 		v := group.DefaultDefaultValidityDays
 		_c.mutation.SetDefaultValidityDays(v)
 	}
+	if _, ok := _c.mutation.DisableClaudeOauthSystemPromptInjection(); !ok {
+		v := group.DefaultDisableClaudeOauthSystemPromptInjection
+		_c.mutation.SetDisableClaudeOauthSystemPromptInjection(v)
+	}
 	if _, ok := _c.mutation.AllowImageGeneration(); !ok {
 		v := group.DefaultAllowImageGeneration
 		_c.mutation.SetAllowImageGeneration(v)
@@ -1320,6 +1338,9 @@ func (_c *GroupCreate) check() error {
 	}
 	if _, ok := _c.mutation.DefaultValidityDays(); !ok {
 		return &ValidationError{Name: "default_validity_days", err: errors.New(`ent: missing required field "Group.default_validity_days"`)}
+	}
+	if _, ok := _c.mutation.DisableClaudeOauthSystemPromptInjection(); !ok {
+		return &ValidationError{Name: "disable_claude_oauth_system_prompt_injection", err: errors.New(`ent: missing required field "Group.disable_claude_oauth_system_prompt_injection"`)}
 	}
 	if _, ok := _c.mutation.AllowImageGeneration(); !ok {
 		return &ValidationError{Name: "allow_image_generation", err: errors.New(`ent: missing required field "Group.allow_image_generation"`)}
@@ -1558,6 +1579,10 @@ func (_c *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DefaultValidityDays(); ok {
 		_spec.SetField(group.FieldDefaultValidityDays, field.TypeInt, value)
 		_node.DefaultValidityDays = value
+	}
+	if value, ok := _c.mutation.DisableClaudeOauthSystemPromptInjection(); ok {
+		_spec.SetField(group.FieldDisableClaudeOauthSystemPromptInjection, field.TypeBool, value)
+		_node.DisableClaudeOauthSystemPromptInjection = value
 	}
 	if value, ok := _c.mutation.AllowImageGeneration(); ok {
 		_spec.SetField(group.FieldAllowImageGeneration, field.TypeBool, value)
@@ -2186,6 +2211,18 @@ func (u *GroupUpsert) UpdateDefaultValidityDays() *GroupUpsert {
 // AddDefaultValidityDays adds v to the "default_validity_days" field.
 func (u *GroupUpsert) AddDefaultValidityDays(v int) *GroupUpsert {
 	u.Add(group.FieldDefaultValidityDays, v)
+	return u
+}
+
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (u *GroupUpsert) SetDisableClaudeOauthSystemPromptInjection(v bool) *GroupUpsert {
+	u.Set(group.FieldDisableClaudeOauthSystemPromptInjection, v)
+	return u
+}
+
+// UpdateDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field to the value that was provided on create.
+func (u *GroupUpsert) UpdateDisableClaudeOauthSystemPromptInjection() *GroupUpsert {
+	u.SetExcluded(group.FieldDisableClaudeOauthSystemPromptInjection)
 	return u
 }
 
@@ -3361,6 +3398,20 @@ func (u *GroupUpsertOne) AddDefaultValidityDays(v int) *GroupUpsertOne {
 func (u *GroupUpsertOne) UpdateDefaultValidityDays() *GroupUpsertOne {
 	return u.Update(func(s *GroupUpsert) {
 		s.UpdateDefaultValidityDays()
+	})
+}
+
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (u *GroupUpsertOne) SetDisableClaudeOauthSystemPromptInjection(v bool) *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetDisableClaudeOauthSystemPromptInjection(v)
+	})
+}
+
+// UpdateDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field to the value that was provided on create.
+func (u *GroupUpsertOne) UpdateDisableClaudeOauthSystemPromptInjection() *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateDisableClaudeOauthSystemPromptInjection()
 	})
 }
 
@@ -4835,6 +4886,20 @@ func (u *GroupUpsertBulk) AddDefaultValidityDays(v int) *GroupUpsertBulk {
 func (u *GroupUpsertBulk) UpdateDefaultValidityDays() *GroupUpsertBulk {
 	return u.Update(func(s *GroupUpsert) {
 		s.UpdateDefaultValidityDays()
+	})
+}
+
+// SetDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field.
+func (u *GroupUpsertBulk) SetDisableClaudeOauthSystemPromptInjection(v bool) *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetDisableClaudeOauthSystemPromptInjection(v)
+	})
+}
+
+// UpdateDisableClaudeOauthSystemPromptInjection sets the "disable_claude_oauth_system_prompt_injection" field to the value that was provided on create.
+func (u *GroupUpsertBulk) UpdateDisableClaudeOauthSystemPromptInjection() *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateDisableClaudeOauthSystemPromptInjection()
 	})
 }
 

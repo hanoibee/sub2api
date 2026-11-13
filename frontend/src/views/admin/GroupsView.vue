@@ -1398,6 +1398,24 @@
           </div>
         </div>
 
+        <div
+          v-if="createForm.platform === 'anthropic' || createForm.platform === 'composite'"
+          class="border-t border-gray-200 pt-4 dark:border-dark-700"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <span class="input-label" id="createForm-claude-oauth-injection">
+              {{ t("admin.groups.claudeOAuthSystemPromptInjection.title") }}
+            </span>
+            <Toggle
+              v-model="createForm.enable_claude_oauth_system_prompt_injection"
+              aria-labelledby="createForm-claude-oauth-injection"
+            />
+          </div>
+          <p class="input-hint">
+            {{ t("admin.groups.claudeOAuthSystemPromptInjection.hint") }}
+          </p>
+        </div>
+
         <!-- Claude Code 客户端限制（仅 anthropic 平台） -->
         <div v-if="createForm.platform === 'anthropic'" class="border-t pt-4">
           <div class="mb-1.5 flex items-center gap-1">
@@ -3062,6 +3080,24 @@
               }}
             </span>
           </div>
+        </div>
+
+        <div
+          v-if="editForm.platform === 'anthropic' || editForm.platform === 'composite'"
+          class="border-t border-gray-200 pt-4 dark:border-dark-700"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <span class="input-label" id="editForm-claude-oauth-injection">
+              {{ t("admin.groups.claudeOAuthSystemPromptInjection.title") }}
+            </span>
+            <Toggle
+              v-model="editForm.enable_claude_oauth_system_prompt_injection"
+              aria-labelledby="editForm-claude-oauth-injection"
+            />
+          </div>
+          <p class="input-hint">
+            {{ t("admin.groups.claudeOAuthSystemPromptInjection.hint") }}
+          </p>
         </div>
 
         <!-- Claude Code 客户端限制（仅 anthropic 平台） -->
@@ -5052,6 +5088,7 @@ const createForm = reactive({
   profit_safety_buffer_percent: 0,
   // Claude Code 客户端限制（仅 anthropic 平台使用）
   claude_code_only: false,
+  enable_claude_oauth_system_prompt_injection: true,
   thinking_invalid_signature_policy: "" as string,
   fallback_group_id: null as number | null,
   fallback_group_id_on_invalid_request: null as number | null,
@@ -5420,6 +5457,7 @@ const editForm = reactive({
   profit_safety_buffer_percent: 0,
   // Claude Code 客户端限制（仅 anthropic 平台使用）
   claude_code_only: false,
+  enable_claude_oauth_system_prompt_injection: true,
   thinking_invalid_signature_policy: "" as string,
   fallback_group_id: null as number | null,
   fallback_group_id_on_invalid_request: null as number | null,
@@ -5891,6 +5929,7 @@ const closeCreateModal = () => {
   createForm.profit_min_margin_percent = 0;
   createForm.profit_safety_buffer_percent = 0;
   createForm.claude_code_only = false;
+  createForm.enable_claude_oauth_system_prompt_injection = true;
   createForm.thinking_invalid_signature_policy = "";
   createForm.fallback_group_id = null;
   createForm.fallback_group_id_on_invalid_request = null;
@@ -6191,6 +6230,8 @@ const handleEdit = async (group: AdminGroup) => {
     group.profit_safety_buffer ?? 0,
   );
   editForm.claude_code_only = group.claude_code_only || false;
+  editForm.enable_claude_oauth_system_prompt_injection =
+    group.enable_claude_oauth_system_prompt_injection ?? true;
   editForm.thinking_invalid_signature_policy =
     group.thinking_invalid_signature_policy || "";
   editForm.fallback_group_id = group.fallback_group_id;

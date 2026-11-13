@@ -627,6 +627,7 @@ export interface Group {
   claude_code_only: boolean
   // Thinking signature policy: ""=follow global, strip, reject
   thinking_invalid_signature_policy?: string
+  enable_claude_oauth_system_prompt_injection?: boolean
   fallback_group_id: number | null
   fallback_group_id_on_invalid_request: number | null
   // OpenAI Messages 调度开关（用户侧需要此字段判断是否展示 Claude Code 教程）
@@ -853,6 +854,7 @@ export interface CreateGroupRequest {
   profit_safety_buffer?: number
   claude_code_only?: boolean
   thinking_invalid_signature_policy?: string
+  enable_claude_oauth_system_prompt_injection?: boolean
   fallback_group_id?: number | null
   fallback_group_id_on_invalid_request?: number | null
   mcp_xml_inject?: boolean
@@ -922,6 +924,7 @@ export interface UpdateGroupRequest {
   profit_safety_buffer?: number
   claude_code_only?: boolean
   thinking_invalid_signature_policy?: string
+  enable_claude_oauth_system_prompt_injection?: boolean
   fallback_group_id?: number | null
   fallback_group_id_on_invalid_request?: number | null
   mcp_xml_inject?: boolean

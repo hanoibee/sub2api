@@ -109,6 +109,8 @@ type Group struct {
 	MonthlyLimitUSD           *float64 `json:"monthly_limit_usd"`
 	LongContextPricingEnabled bool     `json:"long_context_pricing_enabled"`
 
+	EnableClaudeOAuthSystemPromptInjection bool `json:"enable_claude_oauth_system_prompt_injection"`
+
 	// 图片生成计费配置（仅 antigravity 平台使用）
 	AllowImageGeneration         bool    `json:"allow_image_generation"`
 	AllowBatchImageGeneration    bool    `json:"allow_batch_image_generation"`
