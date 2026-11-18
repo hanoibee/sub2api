@@ -2,6 +2,16 @@ package service
 
 import "testing"
 
+func TestAPIKeyService_RejectsV28AuthSnapshotBeforeMergedGroupSettings(t *testing.T) {
+	svc := &APIKeyService{}
+	apiKey, ok, err := svc.applyAuthCacheEntry("k-before-merged-group-settings", &APIKeyAuthCacheEntry{
+		Snapshot: &APIKeyAuthSnapshot{Version: 28},
+	})
+	if err != nil || ok || apiKey != nil {
+		t.Fatalf("expected v28 auth snapshot to be ignored, got key=%v ok=%v err=%v", apiKey, ok, err)
+	}
+}
+
 func TestAPIKeyService_RejectsV10AuthSnapshotWithoutModelAllowlist(t *testing.T) {
 	groupID := int64(9)
 	svc := &APIKeyService{}
