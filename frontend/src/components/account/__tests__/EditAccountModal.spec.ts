@@ -355,7 +355,7 @@ describe('EditAccountModal', () => {
     await wrapper.get('input[type="password"]').setValue('replacement-key')
     await sync.trigger('click')
     expect(previewUpstreamGroup).toHaveBeenLastCalledWith({
-      platform: 'openai', base_url: 'https://new-relay.example', api_key: 'replacement-key', proxy_id: null
+      platform: 'openai', base_url: 'https://new-relay.example', api_key: 'replacement-key', proxy_id: 1
     }, expect.anything())
     wrapper.unmount()
   })

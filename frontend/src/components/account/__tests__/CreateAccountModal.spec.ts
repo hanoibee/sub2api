@@ -256,7 +256,7 @@ describe('CreateAccountModal OpenAI long-context billing', () => {
     await flushPromises()
 
     expect(previewUpstreamGroup).toHaveBeenCalledWith({
-      platform: 'kimi', base_url: 'https://relay.example/v1', api_key: 'test-key', proxy_id: null
+      platform: 'kimi', base_url: 'https://relay.example/v1', api_key: 'test-key', proxy_id: 1
     }, expect.anything())
     expect(wrapper.get<HTMLInputElement>('[data-tour="account-form-name"]').element.value).toBe('标准组')
     expect(wrapper.get<HTMLTextAreaElement>('textarea').element.value).toBe('共享账号')
